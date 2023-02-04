@@ -77,13 +77,13 @@ import java.util.List;
 @KeepName
 @RequiresApi(VERSION_CODES.LOLLIPOP)
 public final class CameraXLivePreviewActivity extends AppCompatActivity
-    implements OnItemSelectedListener, CompoundButton.OnCheckedChangeListener {
+        implements OnItemSelectedListener, CompoundButton.OnCheckedChangeListener {
   private static final String TAG = "CameraXLivePreview";
 
   private static final String OBJECT_DETECTION = "Object Detection";
   private static final String OBJECT_DETECTION_CUSTOM = "Custom Object Detection";
   private static final String CUSTOM_AUTOML_OBJECT_DETECTION =
-      "Custom AutoML Object Detection (Flower)";
+          "Custom AutoML Object Detection (Flower)";
   private static final String FACE_DETECTION = "Face Detection";
   private static final String BARCODE_SCANNING = "Barcode Scanning";
   private static final String IMAGE_LABELING = "Image Labeling";
@@ -164,24 +164,24 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
     facingSwitch.setOnCheckedChangeListener(this);
 
     new ViewModelProvider(this, AndroidViewModelFactory.getInstance(getApplication()))
-        .get(CameraXViewModel.class)
-        .getProcessCameraProvider()
-        .observe(
-            this,
-            provider -> {
-              cameraProvider = provider;
-              bindAllCameraUseCases();
-            });
+            .get(CameraXViewModel.class)
+            .getProcessCameraProvider()
+            .observe(
+                    this,
+                    provider -> {
+                      cameraProvider = provider;
+                      bindAllCameraUseCases();
+                    });
 
     ImageView settingsButton = findViewById(R.id.settings_button);
     settingsButton.setOnClickListener(
-        v -> {
-          Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-          intent.putExtra(
-              SettingsActivity.EXTRA_LAUNCH_SOURCE,
-              SettingsActivity.LaunchSource.CAMERAX_LIVE_PREVIEW);
-          startActivity(intent);
-        });
+            v -> {
+              Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+              intent.putExtra(
+                      SettingsActivity.EXTRA_LAUNCH_SOURCE,
+                      SettingsActivity.LaunchSource.CAMERAX_LIVE_PREVIEW);
+              startActivity(intent);
+            });
   }
 
   @Override
@@ -210,11 +210,11 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
       return;
     }
     int newLensFacing =
-        lensFacing == CameraSelector.LENS_FACING_FRONT
-            ? CameraSelector.LENS_FACING_BACK
-            : CameraSelector.LENS_FACING_FRONT;
+            lensFacing == CameraSelector.LENS_FACING_FRONT
+                    ? CameraSelector.LENS_FACING_BACK
+                    : CameraSelector.LENS_FACING_FRONT;
     CameraSelector newCameraSelector =
-        new CameraSelector.Builder().requireLensFacing(newLensFacing).build();
+            new CameraSelector.Builder().requireLensFacing(newLensFacing).build();
     try {
       if (cameraProvider.hasCamera(newCameraSelector)) {
         Log.d(TAG, "Set facing to " + newLensFacing);
@@ -227,10 +227,10 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
       // Falls through
     }
     Toast.makeText(
-            getApplicationContext(),
-            "This device does not have lens with facing: " + newLensFacing,
-            Toast.LENGTH_SHORT)
-        .show();
+                    getApplicationContext(),
+                    "This device does not have lens with facing: " + newLensFacing,
+                    Toast.LENGTH_SHORT)
+            .show();
   }
 
   @Override
@@ -297,30 +297,30 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
     }
 
     try {
-          PoseDetectorOptionsBase poseDetectorOptions =
+      PoseDetectorOptionsBase poseDetectorOptions =
               PreferenceUtils.getPoseDetectorOptionsForLivePreview(this);
-          boolean shouldShowInFrameLikelihood =
+      boolean shouldShowInFrameLikelihood =
               PreferenceUtils.shouldShowPoseDetectionInFrameLikelihoodLivePreview(this);
-          boolean visualizeZ = PreferenceUtils.shouldPoseDetectionVisualizeZ(this);
-          boolean rescaleZ = PreferenceUtils.shouldPoseDetectionRescaleZForVisualization(this);
-          boolean runClassification = PreferenceUtils.shouldPoseDetectionRunClassification(this);
-          imageProcessor =
+      boolean visualizeZ = PreferenceUtils.shouldPoseDetectionVisualizeZ(this);
+      boolean rescaleZ = PreferenceUtils.shouldPoseDetectionRescaleZForVisualization(this);
+      boolean runClassification = PreferenceUtils.shouldPoseDetectionRunClassification(this);
+      imageProcessor =
               new PoseDetectorProcessor(
-                  this,
-                  poseDetectorOptions,
-                  shouldShowInFrameLikelihood,
-                  visualizeZ,
-                  rescaleZ,
-                  runClassification,
-                  /* isStreamMode = */ true);
+                      this,
+                      poseDetectorOptions,
+                      shouldShowInFrameLikelihood,
+                      visualizeZ,
+                      rescaleZ,
+                      runClassification,
+                      /* isStreamMode = */ true);
 
     } catch (Exception e) {
       Log.e(TAG, "Can not create image processor: " + selectedModel, e);
       Toast.makeText(
-              getApplicationContext(),
-              "Can not create image processor: " + e.getLocalizedMessage(),
-              Toast.LENGTH_LONG)
-          .show();
+                      getApplicationContext(),
+                      "Can not create image processor: " + e.getLocalizedMessage(),
+                      Toast.LENGTH_LONG)
+              .show();
       return;
     }
 
@@ -333,30 +333,30 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
 
     needUpdateGraphicOverlayImageSourceInfo = true;
     analysisUseCase.setAnalyzer(
-        // imageProcessor.processImageProxy will use another thread to run the detection underneath,
-        // thus we can just runs the analyzer itself on main thread.
-        ContextCompat.getMainExecutor(this),
-        imageProxy -> {
-          if (needUpdateGraphicOverlayImageSourceInfo) {
-            boolean isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT;
-            int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
-            if (rotationDegrees == 0 || rotationDegrees == 180) {
-              graphicOverlay.setImageSourceInfo(
-                  imageProxy.getWidth(), imageProxy.getHeight(), isImageFlipped);
-            } else {
-              graphicOverlay.setImageSourceInfo(
-                  imageProxy.getHeight(), imageProxy.getWidth(), isImageFlipped);
-            }
-            needUpdateGraphicOverlayImageSourceInfo = false;
-          }
-          try {
-            imageProcessor.processImageProxy(imageProxy, graphicOverlay);
-          } catch (MlKitException e) {
-            Log.e(TAG, "Failed to process image. Error: " + e.getLocalizedMessage());
-            Toast.makeText(getApplicationContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT)
-                .show();
-          }
-        });
+            // imageProcessor.processImageProxy will use another thread to run the detection underneath,
+            // thus we can just runs the analyzer itself on main thread.
+            ContextCompat.getMainExecutor(this),
+            imageProxy -> {
+              if (needUpdateGraphicOverlayImageSourceInfo) {
+                boolean isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT;
+                int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
+                if (rotationDegrees == 0 || rotationDegrees == 180) {
+                  graphicOverlay.setImageSourceInfo(
+                          imageProxy.getWidth(), imageProxy.getHeight(), isImageFlipped);
+                } else {
+                  graphicOverlay.setImageSourceInfo(
+                          imageProxy.getHeight(), imageProxy.getWidth(), isImageFlipped);
+                }
+                needUpdateGraphicOverlayImageSourceInfo = false;
+              }
+              try {
+                imageProcessor.processImageProxy(imageProxy, graphicOverlay);
+              } catch (MlKitException e) {
+                Log.e(TAG, "Failed to process image. Error: " + e.getLocalizedMessage());
+                Toast.makeText(getApplicationContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT)
+                        .show();
+              }
+            });
 
     cameraProvider.bindToLifecycle(/* lifecycleOwner= */ this, cameraSelector, analysisUseCase);
   }

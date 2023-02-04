@@ -36,7 +36,7 @@ import java.util.concurrent.Executors;
 
 /** A processor to run pose detector. */
 public class PoseDetectorProcessor
-    extends VisionProcessorBase<PoseDetectorProcessor.PoseWithClassification> {
+        extends VisionProcessorBase<PoseDetectorProcessor.PoseWithClassification> {
   private static final String TAG = "PoseDetectorProcessor";
 
   private final PoseDetector detector;
@@ -70,13 +70,13 @@ public class PoseDetectorProcessor
   }
 
   public PoseDetectorProcessor(
-      Context context,
-      PoseDetectorOptionsBase options,
-      boolean showInFrameLikelihood,
-      boolean visualizeZ,
-      boolean rescaleZForVisualization,
-      boolean runClassification,
-      boolean isStreamMode) {
+          Context context,
+          PoseDetectorOptionsBase options,
+          boolean showInFrameLikelihood,
+          boolean visualizeZ,
+          boolean rescaleZForVisualization,
+          boolean runClassification,
+          boolean isStreamMode) {
     super(context);
     this.showInFrameLikelihood = showInFrameLikelihood;
     this.visualizeZ = visualizeZ;
@@ -97,53 +97,53 @@ public class PoseDetectorProcessor
   @Override
   protected Task<PoseWithClassification> detectInImage(InputImage image) {
     return detector
-        .process(image)
-        .continueWith(
-            classificationExecutor,
-            task -> {
-              Pose pose = task.getResult();
-              List<String> classificationResult = new ArrayList<>();
-              if (runClassification) {
-                if (poseClassifierProcessor == null) {
-                  poseClassifierProcessor = new PoseClassifierProcessor(context, isStreamMode);
-                }
-                classificationResult = poseClassifierProcessor.getPoseResult(pose);
-              }
-              return new PoseWithClassification(pose, classificationResult);
-            });
+            .process(image)
+            .continueWith(
+                    classificationExecutor,
+                    task -> {
+                      Pose pose = task.getResult();
+                      List<String> classificationResult = new ArrayList<>();
+                      if (runClassification) {
+                        if (poseClassifierProcessor == null) {
+                          poseClassifierProcessor = new PoseClassifierProcessor(context, isStreamMode);
+                        }
+                        classificationResult = poseClassifierProcessor.getPoseResult(pose);
+                      }
+                      return new PoseWithClassification(pose, classificationResult);
+                    });
   }
 
   @Override
   protected Task<PoseWithClassification> detectInImage(MlImage image) {
     return detector
-        .process(image)
-        .continueWith(
-            classificationExecutor,
-            task -> {
-              Pose pose = task.getResult();
-              List<String> classificationResult = new ArrayList<>();
-              if (runClassification) {
-                if (poseClassifierProcessor == null) {
-                  poseClassifierProcessor = new PoseClassifierProcessor(context, isStreamMode);
-                }
-                classificationResult = poseClassifierProcessor.getPoseResult(pose);
-              }
-              return new PoseWithClassification(pose, classificationResult);
-            });
+            .process(image)
+            .continueWith(
+                    classificationExecutor,
+                    task -> {
+                      Pose pose = task.getResult();
+                      List<String> classificationResult = new ArrayList<>();
+                      if (runClassification) {
+                        if (poseClassifierProcessor == null) {
+                          poseClassifierProcessor = new PoseClassifierProcessor(context, isStreamMode);
+                        }
+                        classificationResult = poseClassifierProcessor.getPoseResult(pose);
+                      }
+                      return new PoseWithClassification(pose, classificationResult);
+                    });
   }
 
   @Override
   protected void onSuccess(
-      @NonNull PoseWithClassification poseWithClassification,
-      @NonNull GraphicOverlay graphicOverlay) {
+          @NonNull PoseWithClassification poseWithClassification,
+          @NonNull GraphicOverlay graphicOverlay) {
     graphicOverlay.add(
-        new PoseGraphic(
-            graphicOverlay,
-            poseWithClassification.pose,
-            showInFrameLikelihood,
-            visualizeZ,
-            rescaleZForVisualization,
-            poseWithClassification.classificationResult));
+            new PoseGraphic(
+                    graphicOverlay,
+                    poseWithClassification.pose,
+                    showInFrameLikelihood,
+                    visualizeZ,
+                    rescaleZForVisualization,
+                    poseWithClassification.classificationResult));
   }
 
   @Override
