@@ -1,19 +1,3 @@
-/*
- * Copyright 2020 Google LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.mlkit.vision.demo.java.posedetector;
 
 import static java.lang.Math.max;
@@ -32,7 +16,6 @@ import com.google.mlkit.vision.pose.PoseLandmark;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 
 class Point {
@@ -59,9 +42,7 @@ class KeyFrame {
     }
 }
 
-/**
- * Draw the detected pose in preview.
- */
+
 public class PoseGraphic extends Graphic {
 
     private static final float DOT_RADIUS = 8.0f;
@@ -86,24 +67,13 @@ public class PoseGraphic extends Graphic {
     private final float TEXT_SIZE = 60.0f;
     private final Paint textPaint;
 
+    //start custom variables
     List<KeyFrame> points = new ArrayList<>();
     int gestureIndex = 0;
     boolean start = false;
     boolean finished = false;
-
     float foundElbowAngle = 0;
-
-    void SetupKeyFrames() {
-
-        List<Integer> pointsTemp = new ArrayList<>();
-        pointsTemp.add(15);
-        pointsTemp.add(13);
-        pointsTemp.add(11);
-        points.add(new KeyFrame(pointsTemp, 20, 20));
-        points.add(new KeyFrame(pointsTemp, 150, 20));
-        points.add(new KeyFrame(pointsTemp, 20, 20));
-
-    }
+    //end custom variable
 
     PoseGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, boolean visualizeZ, boolean rescaleZForVisualization, List<String> poseClassification) {
 
@@ -113,8 +83,6 @@ public class PoseGraphic extends Graphic {
         textPaint.setColor(TEXT_COLOR);
         textPaint.setTextSize(TEXT_SIZE);
         textPaint.setShadowLayer(5.0f, 0f, 0f, Color.BLACK);
-
-        SetupKeyFrames();
 
         this.pose = pose;
         this.showInFrameLikelihood = showInFrameLikelihood;
@@ -137,29 +105,34 @@ public class PoseGraphic extends Graphic {
         rightPaint = new Paint();
         rightPaint.setStrokeWidth(STROKE_WIDTH);
         rightPaint.setColor(Color.YELLOW);
+
+        //start custom code
+        SetupKeyFrames();
+        //end custom code
     }
 
     @Override
     public void draw(Canvas canvas) {
 
+        //gets the list of all body landmarks
         List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
-        if (landmarks.isEmpty()) {
+
+        //doesn't draw if no landmarks
+        if (landmarks.isEmpty())
             return;
-        }
 
+        //draws the pose
+        DrawAllPoints(canvas, landmarks);
+        DrawAllLines(canvas);
+
+
+        //start tracking code
         Tracking(landmarks);
-
         canvas.drawText("Right elbow angle:\n" + foundElbowAngle, 10, 500, textPaint);
+        //end tracking code
+    }
 
-        // Draw pose classification text.
-        float classificationX = POSE_CLASSIFICATION_TEXT_SIZE * 0.5f;
-        for (int i = 0; i < poseClassification.size(); i++) {
-            float classificationY =
-                    (canvas.getHeight()
-                            - POSE_CLASSIFICATION_TEXT_SIZE * 1.5f * (poseClassification.size() - i));
-            canvas.drawText(
-                    poseClassification.get(i), classificationX, classificationY, classificationTextPaint);
-        }
+    void DrawAllPoints(Canvas canvas, List<PoseLandmark> landmarks) {
 
         // Draw all the points
         for (PoseLandmark landmark : landmarks) {
@@ -169,6 +142,15 @@ public class PoseGraphic extends Graphic {
                 zMax = max(zMax, landmark.getPosition3D().getZ());
             }
         }
+    }
+    void drawPoint(Canvas canvas, PoseLandmark landmark, Paint paint) {
+        PointF3D point = landmark.getPosition3D();
+        updatePaintColorByZValue(
+                paint, canvas, visualizeZ, rescaleZForVisualization, point.getZ(), zMin, zMax);
+        canvas.drawCircle(translateX(point.getX()), translateY(point.getY()), DOT_RADIUS, paint);
+    }
+
+    void DrawAllLines(Canvas canvas) {
 
         PoseLandmark nose = pose.getPoseLandmark(PoseLandmark.NOSE);
         PoseLandmark lefyEyeInner = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER);
@@ -246,26 +228,9 @@ public class PoseGraphic extends Graphic {
         drawLine(canvas, rightAnkle, rightHeel, rightPaint);
         drawLine(canvas, rightHeel, rightFootIndex, rightPaint);
 
-        // Draw inFrameLikelihood for all points
-        if (showInFrameLikelihood) {
-            for (PoseLandmark landmark : landmarks) {
-//                canvas.drawText(
-//                        String.format(Locale.US, "%.2f", landmark.getInFrameLikelihood()),
-//                        translateX(landmark.getPosition().x),
-//                        translateY(landmark.getPosition().y),
-//                        whitePaint);
-            }
-        }
     }
-
-    void drawPoint(Canvas canvas, PoseLandmark landmark, Paint paint) {
-        PointF3D point = landmark.getPosition3D();
-        updatePaintColorByZValue(
-                paint, canvas, visualizeZ, rescaleZForVisualization, point.getZ(), zMin, zMax);
-        canvas.drawCircle(translateX(point.getX()), translateY(point.getY()), DOT_RADIUS, paint);
-    }
-
     void drawLine(Canvas canvas, PoseLandmark startLandmark, PoseLandmark endLandmark, Paint paint) {
+
         PointF3D start = startLandmark.getPosition3D();
         PointF3D end = endLandmark.getPosition3D();
 
@@ -283,6 +248,21 @@ public class PoseGraphic extends Graphic {
     }
 
 
+    //start custom functions
+
+    void SetupKeyFrames() {
+
+        List<Integer> pointsTemp = new ArrayList<>();
+        pointsTemp.add(15);
+        pointsTemp.add(13);
+        pointsTemp.add(11);
+        points.add(new KeyFrame(pointsTemp, 20, 20));
+        points.add(new KeyFrame(pointsTemp, 150, 20));
+        points.add(new KeyFrame(pointsTemp, 20, 20));
+
+    }
+
+    //tracks indexes from the list of pose landmarks
     private void Tracking(List<PoseLandmark> poseLandmarks) {
 
         //if the gesture tracking hasn't finished yet
@@ -311,26 +291,21 @@ public class PoseGraphic extends Graphic {
 
     //Uses pythagoras to get the distance between two points
     double GetDistance(Point start, Point end) {
-
         double xDistance2 = Math.pow(start.x - end.x, 2);
         double yDistance2 = Math.pow(start.y - end.y, 2);
-
         double distance = Math.pow(xDistance2 + yDistance2, 0.5);
-
         return distance;
     }
 
     //returns the angle between three points (the middle point)
     double GetAnglePoints(Point trackStart, Point trackMid, Point trackEnd) {
-
         double aLength = GetDistance(trackStart, trackMid);
         double bLength = GetDistance(trackMid, trackEnd);
         double cLength = GetDistance(trackEnd, trackStart);
-
         return GetAngleLengths(aLength, bLength, cLength);
     }
 
-    //returns the angle between three lenghts (angle opposite length c)
+    //returns the angle between three lengths (angle opposite length c)
     double GetAngleLengths(double a, double b, double c) {
         double C_radian = Math.acos((Math.pow(a, 2) + Math.pow(b, 2) - Math.pow(c, 2)) / (2 * a * b));
         double C_degrees = Math.toDegrees(C_radian);
@@ -350,7 +325,6 @@ public class PoseGraphic extends Graphic {
         Point end = new Point(landMarks.get(toTrack.get(2)).getPosition().x, landMarks.get(toTrack.get(2)).getPosition().y);
 
         double elbowAngle = GetAnglePoints(start, mid, end);
-        //textViewC.setText("Elbow angle: " + elbowAngle + "");
 
         foundElbowAngle = (float)elbowAngle;
         return (elbowAngle > targetAngle - leniency && elbowAngle < targetAngle + leniency);
@@ -365,6 +339,5 @@ public class PoseGraphic extends Graphic {
     public void detectGesture(View v) {
         finished = false;
         gestureIndex = 0;
-//    textViewD.setText("Press start");
     }
 }
