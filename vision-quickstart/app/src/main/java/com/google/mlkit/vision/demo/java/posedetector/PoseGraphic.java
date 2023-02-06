@@ -114,6 +114,10 @@ public class PoseGraphic extends Graphic {
     @Override
     public void draw(Canvas canvas) {
 
+        // To determine the body movement's accuracy
+        // We can write a new class that reads in the JSON file, remembers the current key frame and the next key frame
+        // It has a detectKeyFrame function that takes in all the landmarks as an input, and returns whether the body movement completed successfully.
+
         //gets the list of all body landmarks
         List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
 
