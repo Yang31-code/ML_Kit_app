@@ -61,4 +61,13 @@ public class Keyframe implements Pose {
         // TODO: Implement the logic to invoke every point's validator
         return false;
     }
+
+    public boolean isWithinTime() {
+        // TODO: Implement logic to determine if the timer has expired
+        return false;
+    }
+
+    public void clearTimer() {
+        startTime = null;
+    }
 }
