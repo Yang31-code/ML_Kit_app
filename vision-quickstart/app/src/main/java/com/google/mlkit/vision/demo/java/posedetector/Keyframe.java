@@ -2,22 +2,44 @@ package com.google.mlkit.vision.demo.java.posedetector;
 
 import com.google.mlkit.vision.pose.PoseLandmark;
 
-import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 interface Pose {
     boolean isValidPose(List<PoseLandmark> landmarks);
 }
 
-class PointAngle implements Pose {
+class TriAnglePose implements Pose {
     private List<Integer> toTrack;
     private int angle;
-    private int leniency;
+    private double leniency;
 
-    public PointAngle(List<Integer> _toTrack, int _angle, int _leniency) {
+    public TriAnglePose(List<Integer> _toTrack, int _angle, double _leniency) {
         toTrack = _toTrack;
         angle = _angle;
         leniency = _leniency;
+    }
+
+    public TriAnglePose(JSONObject json) {
+        try {
+            // TODO: Cast JSONArray into List manually
+            toTrack = new ArrayList<>();
+            angle = (int) json.get("angle");
+            leniency = (int) json.get("leniency");
+            JSONArray points = (JSONArray) json.get("toTrack");
+
+            for (int i = 0; i < points.length(); i++) {
+                toTrack.add((int) points.get(i));
+            }
+        } catch (JSONException e) {
+            System.out.println(e);
+            return;
+        }
     }
 
     @Override
@@ -27,15 +49,32 @@ class PointAngle implements Pose {
     }
 }
 
-class PointPosition implements Pose {
-    private List<Integer> target;
+class PointPositionPose implements Pose {
+    private List<Double> target;
     private int toTrack;
-    private int leniency;
+    private double leniency;
 
-    public PointPosition(List<Integer> _target, int _toTrack, int _leniency) {
+    public PointPositionPose(List<Double> _target, int _toTrack, double _leniency) {
         target = _target;
         toTrack = _toTrack;
         leniency = _leniency;
+    }
+
+    public PointPositionPose(JSONObject json) {
+        try {
+            // TODO: Cast JSONArray into List manually
+            target = new ArrayList<>();
+            toTrack = (int) json.get("toTrack");
+            leniency = (double) json.get("leniency");
+            JSONArray points = (JSONArray) json.get("target");
+
+            for (int i = 0; i < points.length(); i++) {
+                target.add((Double) points.get(i));
+            }
+        } catch (JSONException e) {
+            System.out.println(e);
+            return;
+        }
     }
 
     @Override
@@ -48,12 +87,35 @@ class PointPosition implements Pose {
 public class Keyframe implements Pose {
     private List<Pose> points;
     private Date startTime;
-    private int timeLimit;
+    private double timeLimit;
 
-    public Keyframe(List<Pose> _points, int _timeLimit)  {
+    public Keyframe(List<Pose> _points, double _timeLimit)  {
         points = _points;
         timeLimit = _timeLimit;
         startTime = null;
+    }
+
+    public Keyframe(JSONObject json) {
+        // TODO: Parse json object that contains all points into keyframes
+        this.points = new ArrayList<>();
+        try {
+            JSONArray points = (JSONArray) json.get("points");
+            timeLimit = Double.parseDouble(json.get("timeLimit").toString());
+            for (int i = 0; i < points.length(); i ++) {
+                JSONObject point = (JSONObject) points.get(i);
+                switch ((String) point.get("pointType")) {
+                    case "triPointAngle":
+                        this.points.add(new TriAnglePose(point));
+                        break;
+                    case "pointPosition":
+                        this.points.add(new PointPositionPose(point));
+                        break;
+                }
+            }
+        } catch (JSONException e) {
+            System.out.println(e);
+            return;
+        }
     }
 
     @Override

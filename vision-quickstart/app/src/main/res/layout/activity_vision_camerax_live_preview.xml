@@ -22,6 +22,14 @@
       app:layout_constraintTop_toTopOf="@id/preview_view"
       app:layout_constraintBottom_toBottomOf="@id/preview_view"/>
 
+  <include
+      android:id="@+id/settings_button"
+      layout="@layout/settings_style"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:layout_constraintRight_toRightOf="@id/preview_view"
+      app:layout_constraintTop_toTopOf="@id/preview_view" />
+
   <LinearLayout
       android:id="@id/control"
       android:layout_width="match_parent"
@@ -39,6 +47,13 @@
         android:checked="false"
         android:textOff=""
         android:textOn=""/>
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
 
   </LinearLayout>
 

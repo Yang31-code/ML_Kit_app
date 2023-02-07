@@ -1,8 +1,13 @@
 package com.google.mlkit.vision.demo.java.posedetector;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import com.google.mlkit.vision.pose.PoseLandmark;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class PoseOracle {
     private List<Keyframe> kfs;
@@ -13,6 +18,20 @@ public class PoseOracle {
         kfs = _kfs;
         currentKeyframe = 0;
         status = false;
+    }
+
+    public PoseOracle(JSONObject json) {
+        this.kfs = new ArrayList<>();
+        try {
+            JSONArray kfs = (JSONArray) json.get("keyframes");
+            for (int i = 0; i < kfs.length(); i ++) {
+                JSONObject kf = (JSONObject) kfs.get(i);
+                this.kfs.add(new Keyframe(kf));
+            }
+        } catch (JSONException e) {
+            System.out.println(e);
+            return;
+        }
     }
 
     public boolean validatePose(List<PoseLandmark> landmarks) {
