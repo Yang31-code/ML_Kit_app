@@ -18,8 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+// The definition of the two classes is not the same as the definition in the json file
+// TODO: Merge the two classes into PoseOracle
 class Point {
 
+    // TODO: Missing fields (pointType, target)
     public double x;
     public double y;
 
@@ -31,6 +34,7 @@ class Point {
 
 class KeyFrame {
 
+    // TODO: Each keyframe consists of two fields (an array of points and a time limit)
     List<Integer> toTrack = new ArrayList<>();
     double angle;
     double leniency;
@@ -68,6 +72,7 @@ public class PoseGraphic extends Graphic {
     private final Paint textPaint;
 
     //start custom variables
+    // TODO: Turn this list into a PoseOracle instance that has built-in detection functions
     List<KeyFrame> points = new ArrayList<>();
     int gestureIndex = 0;
     boolean start = false;
@@ -293,6 +298,7 @@ public class PoseGraphic extends Graphic {
         }
     }
 
+    // TODO: Put these functions into a separate Helper class
     //Uses pythagoras to get the distance between two points
     double GetDistance(Point start, Point end) {
         double xDistance2 = Math.pow(start.x - end.x, 2);

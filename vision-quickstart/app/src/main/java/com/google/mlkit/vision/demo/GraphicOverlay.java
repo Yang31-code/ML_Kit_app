@@ -306,6 +306,8 @@ public class GraphicOverlay extends View {
       updateTransformationIfNeeded();
 
       for (Graphic graphic : graphics) {
+        // draw is executed here
+        System.out.println(graphic);
         graphic.draw(canvas);
       }
     }
