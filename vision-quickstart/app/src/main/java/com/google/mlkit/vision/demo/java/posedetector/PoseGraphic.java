@@ -46,7 +46,7 @@ public class PoseGraphic extends Graphic {
   private final Paint rightPaint;
   private final Paint whitePaint;
 
-  private static PoseOracle oracle = null;
+//  private static PoseOracle oracle = null;
 
   private final int TEXT_COLOR = Color.WHITE;
   private final float TEXT_SIZE = 60.0f;
@@ -92,9 +92,9 @@ public class PoseGraphic extends Graphic {
     rightPaint.setColor(Color.YELLOW);
 
     //start custom code
-    if (oracle == null) {
-      setupJSON();
-    }
+//    if (oracle == null) {
+//      setupJSON();
+//    }
 //    SetupKeyFrames();
     //end custom code
   }
@@ -228,7 +228,7 @@ public class PoseGraphic extends Graphic {
           JSONObject obj = new JSONObject(response);
           System.out.println("JSON read");
           System.out.println(obj);
-          oracle = new PoseOracle(obj);
+//          oracle = new PoseOracle(obj);
         } catch (JSONException e) {
           System.out.println(e);
         }
