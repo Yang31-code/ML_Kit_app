@@ -6,7 +6,6 @@ import static java.lang.Math.min;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.view.View;
 
 import com.google.mlkit.vision.common.PointF3D;
 import com.google.mlkit.vision.demo.GraphicOverlay;
@@ -50,36 +49,39 @@ public class PoseGraphic extends Graphic {
 
     //start custom variables
     static boolean framesGot = false;
-    static List<KeyFrame> points = new ArrayList<>();
+    //    static List<KeyFrame> points = new ArrayList<>();
     static int gestureIndex = 0;
     static boolean finished = false;
     static int gestureCount = 0;
 
     static String trackStatus = "null";
+
+    static JSONObject gestureJson;
+    static Tracker tracker;
     //end custom variable
 
 
-    class Point {
-        public double x;
-        public double y;
-
-        public Point(double _x, double _y) {
-            x = _x;
-            y = _y;
-        }
-    }
-
-    class KeyFrame {
-        List<Integer> toTrack = new ArrayList<>();
-        double angle;
-        double leniency;
-
-        KeyFrame(List<Integer> _toTrack, double _angle, double _leniency) {
-            toTrack = _toTrack;
-            angle = _angle;
-            leniency = _leniency;
-        }
-    }
+//    class Point {
+//        public double x;
+//        public double y;
+//
+//        public Point(double _x, double _y) {
+//            x = _x;
+//            y = _y;
+//        }
+//    }
+//
+//    class KeyFrame {
+//        List<Integer> toTrack = new ArrayList<>();
+//        double angle;
+//        double leniency;
+//
+//        KeyFrame(List<Integer> _toTrack, double _angle, double _leniency) {
+//            toTrack = _toTrack;
+//            angle = _angle;
+//            leniency = _leniency;
+//        }
+//    }
 
 
     PoseGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, boolean visualizeZ, boolean rescaleZForVisualization) {
@@ -120,6 +122,7 @@ public class PoseGraphic extends Graphic {
         //end custom code
     }
 
+
     @Override
     public void draw(Canvas canvas) {
 
@@ -127,22 +130,30 @@ public class PoseGraphic extends Graphic {
         List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
 
         //doesn't draw if no landmarks
-        if (landmarks.isEmpty())
-            return;
+        if (!landmarks.isEmpty()) {
 
-        //draws the pose
-        DrawAllPoints(canvas, landmarks);
-        DrawAllLines(canvas);
+            //draws the pose
+            DrawAllPoints(canvas, landmarks);
+            DrawAllLines(canvas);
+        }
 
 
         //start tracking code
 
-        Tracking(landmarks, canvas);
-
+        Tracking(landmarks);
 
         //outputs what keyframe is being tracked
         int y = 300;
-        canvas.drawText("Gesture index: " + gestureIndex + "/" + points.size(), 10, y, textPaint);
+
+        if (gestureJson != null) {
+            try {
+                String fileType = (String) gestureJson.get("fileType");
+                canvas.drawText("File type: " + fileType, 10, y, textPaint);
+            } catch (JSONException e) {
+                canvas.drawText("Error getting file type", 10, y, textPaint);
+            }
+        }
+
 
         y += 100;
         canvas.drawText("Gestures completed: " + gestureCount, 10, y, textPaint);
@@ -152,6 +163,7 @@ public class PoseGraphic extends Graphic {
             canvas.drawText("Elbow angle too big!", 10, y, textPaint);
         else
             canvas.drawText("Elbow angle too small!", 10, y, textPaint);
+
         //end tracking code
     }
 
@@ -255,78 +267,48 @@ public class PoseGraphic extends Graphic {
     //start custom functions
 
     void SetupKeyFrames() {
-        List<Integer> pointsTemp = new ArrayList<>();
-        pointsTemp.add(15);
-        pointsTemp.add(13);
-        pointsTemp.add(11);
-        points.add(new KeyFrame(pointsTemp, 20, 20));
-        points.add(new KeyFrame(pointsTemp, 150, 20));
-        points.add(new KeyFrame(pointsTemp, 20, 20));
+        PullGestureJson();
+        SetupTracker();
     }
 
+    void PullGestureJson() {
+        String url = "https://api.npoint.io/7cc23e4c9216b56abf53";
+        RequestQueue rq = Volley.newRequestQueue(getApplicationContext());
+        StringRequest sr = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    gestureJson = new JSONObject(response);
+                    System.out.println("JSON read");
+                    System.out.println(gestureJson);
+                } catch (JSONException e) {
+                    System.out.println(e);
+                }
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println(error);
+            }
+        });
+
+        rq.add(sr);
+    }
+
+    void SetupTracker() {
+        //populate tracker class in this method
+    }
     //tracks indexes from the list of pose landmarks
-    private void Tracking(List<PoseLandmark> poseLandmarks, Canvas c) {
+    private void Tracking(List<PoseLandmark> poseLandmarks) {
 
         //if the gesture tracking hasn't finished yet
         if (!finished) {
 
-            if (WithinAngle(poseLandmarks)) {
-                //checks if the angle fits the current gesture keyframe
 
-                //increases the keyframe
-                gestureIndex++;
-
-                //checks if the gesture is finished
-                if (gestureIndex >= points.size()) {
-                    gestureIndex = 0;
-                    gestureCount++;
-                }
-            }
         }
     }
 
-    //Uses pythagoras to get the distance between two points
-    double GetDistance(Point start, Point end) {
-        double xDistance2 = Math.pow(start.x - end.x, 2);
-        double yDistance2 = Math.pow(start.y - end.y, 2);
-        double distance = Math.pow(xDistance2 + yDistance2, 0.5);
-        return distance;
-    }
 
-    //returns the angle between three points (the middle point)
-    double GetAnglePoints(Point trackStart, Point trackMid, Point trackEnd) {
-        double aLength = GetDistance(trackStart, trackMid);
-        double bLength = GetDistance(trackMid, trackEnd);
-        double cLength = GetDistance(trackEnd, trackStart);
-        return GetAngleLengths(aLength, bLength, cLength);
-    }
-
-    //returns the angle between three lengths (angle opposite length c)
-    double GetAngleLengths(double a, double b, double c) {
-        double C_radian = Math.acos((Math.pow(a, 2) + Math.pow(b, 2) - Math.pow(c, 2)) / (2 * a * b));
-        double C_degrees = Math.toDegrees(C_radian);
-        return C_degrees;
-    }
-
-    //checks if the angle of the keyframe indexes are within the target angle
-    boolean WithinAngle(List<PoseLandmark> landMarks) {
-
-        KeyFrame point = points.get(gestureIndex);
-        List<Integer> toTrack = point.toTrack;
-        double targetAngle = point.angle;
-        double leniency = point.leniency;
-
-        Point start = new Point(landMarks.get(toTrack.get(0)).getPosition().x, landMarks.get(toTrack.get(0)).getPosition().y);
-        Point mid = new Point(landMarks.get(toTrack.get(1)).getPosition().x, landMarks.get(toTrack.get(1)).getPosition().y);
-        Point end = new Point(landMarks.get(toTrack.get(2)).getPosition().x, landMarks.get(toTrack.get(2)).getPosition().y);
-
-        double elbowAngle = GetAnglePoints(start, mid, end);
-
-        if (elbowAngle < targetAngle - leniency)
-            trackStatus = "tooSmall";
-        else if (elbowAngle > targetAngle + leniency)
-            trackStatus = "tooBig";
-
-        return (elbowAngle > targetAngle - leniency && elbowAngle < targetAngle + leniency);
-    }
 }
+
