@@ -10,19 +10,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Tracker {
+public class PoseTracker {
 
     private List<Keyframe> kfs;
     int currentKeyframe;
     boolean status;
 
-    public Tracker(List<Keyframe> _kfs) {
+    public PoseTracker(List<Keyframe> _kfs) {
         kfs = _kfs;
         currentKeyframe = 0;
         status = false;
     }
 
-    public Tracker(JSONObject json) {
+    public PoseTracker(JSONObject json) {
         this.kfs = new ArrayList<>();
         try {
             JSONArray kfs = (JSONArray) json.get("keyframes");
@@ -37,7 +37,6 @@ public class Tracker {
     }
 
     public boolean validatePose(List<PoseLandmark> landmarks) {
-        // TODO: Write the logic here to connect the lower-level functions
         Keyframe kf = kfs.get(currentKeyframe);
 
         boolean validPose = kf.isValidPoint(landmarks);
@@ -49,6 +48,7 @@ public class Tracker {
             }
             currentKeyframe = 0;
         } else if (!validPose) {
+            // pose is not valid but is still within time
             // continue
         } else {
             // move to the next keyframe

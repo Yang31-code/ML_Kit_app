@@ -16,7 +16,6 @@ import com.google.mlkit.vision.pose.PoseLandmark;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.android.volley.Request;
@@ -48,7 +47,6 @@ public class PoseGraphic extends Graphic {
     private final Paint textPaint;
 
     //start custom variables
-    static boolean framesGot = false;
     //    static List<KeyFrame> points = new ArrayList<>();
     static int gestureIndex = 0;
     static boolean finished = false;
@@ -57,7 +55,7 @@ public class PoseGraphic extends Graphic {
     static String trackStatus = "null";
 
     static JSONObject gestureJson;
-    static Tracker tracker;
+    static PoseTracker poseTracker = null;
     //end custom variable
 
     PoseGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, boolean visualizeZ, boolean rescaleZForVisualization) {
@@ -91,8 +89,7 @@ public class PoseGraphic extends Graphic {
         rightPaint.setColor(Color.YELLOW);
 
         //start custom code
-        if (!framesGot) {
-            framesGot = true;
+        if (poseTracker == null) {
             SetupKeyFrames();
         }
         //end custom code
@@ -113,10 +110,6 @@ public class PoseGraphic extends Graphic {
             DrawAllLines(canvas);
         }
 
-
-        //start tracking code
-
-        Tracking(landmarks);
 
         //outputs what keyframe is being tracked
         int y = 300;
@@ -244,7 +237,6 @@ public class PoseGraphic extends Graphic {
 
     void SetupKeyFrames() {
         PullGestureJson();
-        SetupTracker();
     }
 
     void PullGestureJson() {
@@ -256,7 +248,10 @@ public class PoseGraphic extends Graphic {
                 try {
                     gestureJson = new JSONObject(response);
                     System.out.println("JSON read");
-                    System.out.println(gestureJson);
+                    if (poseTracker == null) {
+                        System.out.println("Initialized the tracker object");
+                        poseTracker = new PoseTracker(gestureJson);
+                    }
                 } catch (JSONException e) {
                     System.out.println(e);
                 }
@@ -271,20 +266,5 @@ public class PoseGraphic extends Graphic {
 
         rq.add(sr);
     }
-
-    void SetupTracker() {
-        //populate tracker class in this method
-    }
-    //tracks indexes from the list of pose landmarks
-    private void Tracking(List<PoseLandmark> poseLandmarks) {
-
-        //if the gesture tracking hasn't finished yet
-        if (!finished) {
-
-
-        }
-    }
-
-
 }
 

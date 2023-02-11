@@ -27,15 +27,18 @@ class TriPointAngle implements Point {
 
     public TriPointAngle(JSONObject json) {
         try {
-            // TODO: Cast JSONArray into List manually
             toTrack = new ArrayList<>();
             angle = (int) json.get("angle");
-            leniency = (int) json.get("leniency");
+            leniency = Double.parseDouble(json.get("leniency").toString());
             JSONArray points = (JSONArray) json.get("toTrack");
 
             for (int i = 0; i < points.length(); i++) {
                 toTrack.add((int) points.get(i));
             }
+//            System.out.println("TriPointAngle");
+//            System.out.println(angle);
+//            System.out.println(toTrack);
+//            System.out.println(leniency);
         } catch (JSONException e) {
             System.out.println(e);
             return;
@@ -45,32 +48,36 @@ class TriPointAngle implements Point {
     @Override
     public boolean isValidPoint(List<PoseLandmark> landmarks) {
         // TODO: Write the logic to determine if the current pose matches what the points describe
+
         return false;
     }
 }
 
-class DualPointPosition implements Point {
+class DualPointDistance implements Point {
     private List<Double> target;
     private int toTrack;
     private double leniency;
 
-    public DualPointPosition(List<Double> _target, int _toTrack, double _leniency) {
+    public DualPointDistance(List<Double> _target, int _toTrack, double _leniency) {
         target = _target;
         toTrack = _toTrack;
         leniency = _leniency;
     }
 
-    public DualPointPosition(JSONObject json) {
+    public DualPointDistance(JSONObject json) {
         try {
-            // TODO: Cast JSONArray into List manually
             target = new ArrayList<>();
             toTrack = (int) json.get("toTrack");
-            leniency = (double) json.get("leniency");
+            leniency = Double.parseDouble(json.get("leniency").toString());
             JSONArray points = (JSONArray) json.get("target");
 
             for (int i = 0; i < points.length(); i++) {
                 target.add((Double) points.get(i));
             }
+//            System.out.println("DualPointDistance");
+//            System.out.println(target);
+//            System.out.println(toTrack);
+//            System.out.println(leniency);
         } catch (JSONException e) {
             System.out.println(e);
             return;
@@ -96,11 +103,11 @@ public class Keyframe implements Point {
     }
 
     public Keyframe(JSONObject json) {
-        // TODO: Parse json object that contains all points into keyframes
         this.points = new ArrayList<>();
         try {
-            JSONArray points = (JSONArray) json.get("points");
             timeLimit = Double.parseDouble(json.get("timeLimit").toString());
+            JSONArray points = (JSONArray) json.get("points");
+
             for (int i = 0; i < points.length(); i ++) {
                 JSONObject point = (JSONObject) points.get(i);
                 switch ((String) point.get("pointType")) {
@@ -108,7 +115,7 @@ public class Keyframe implements Point {
                         this.points.add(new TriPointAngle(point));
                         break;
                     case "pointPosition":
-                        this.points.add(new DualPointPosition(point));
+                        this.points.add(new DualPointDistance(point));
                         break;
                 }
             }
@@ -120,8 +127,11 @@ public class Keyframe implements Point {
 
     @Override
     public boolean isValidPoint(List<PoseLandmark> landmarks) {
-        // TODO: Implement the logic to invoke every point's validator
-        return false;
+        // Iterate through every point
+        for (int i = 0; i < points.size(); i++)
+            if (!points.get(i).isValidPoint(landmarks))
+                return false;
+        return true;
     }
 
     public boolean isWithinTime() {
