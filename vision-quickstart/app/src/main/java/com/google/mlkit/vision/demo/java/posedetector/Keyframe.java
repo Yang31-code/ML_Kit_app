@@ -47,9 +47,18 @@ class TriPointAngle implements Point {
 
     @Override
     public boolean isValidPoint(List<PoseLandmark> landmarks) {
-        // TODO: Write the logic to determine if the current pose matches what the points describe
+        // get tracking points from landmarks
+        // calculate the angle of the tracked points
+        PoseLandmark p1 = landmarks.get(toTrack.get(0));
+        PoseLandmark p2 = landmarks.get(toTrack.get(1));
+        PoseLandmark p3 = landmarks.get(toTrack.get(2));
 
-        return false;
+        double actualAngle = Util.getAngle(p1.getPosition().x, p1.getPosition().y, p2.getPosition().x, p2.getPosition().y, p3.getPosition().x, p3.getPosition().y);
+
+        System.out.println("Target angle: " + angle);
+        System.out.println("Actual angle: " + actualAngle);
+
+        return Math.abs(actualAngle - angle) < leniency;
     }
 }
 
@@ -86,8 +95,13 @@ class DualPointDistance implements Point {
 
     @Override
     public boolean isValidPoint(List<PoseLandmark> landmarks) {
-        // TODO: Write the logic to determine if the current pose matches what the points describe
-        return false;
+        PoseLandmark point = landmarks.get(toTrack);
+        double distance = Util.getDistance(point.getPosition().x, point.getPosition().y, target.get(0), target.get(1));
+
+        System.out.println("Target position: " + target);
+        System.out.println("Actual distance: " + point.getPosition().x + ", " + point.getPosition().y);
+
+        return distance < leniency;
     }
 }
 
@@ -96,7 +110,7 @@ public class Keyframe implements Point {
     private Date startTime;
     private double timeLimit;
 
-    public Keyframe(List<Point> _points, double _timeLimit)  {
+    public Keyframe(List<Point> _points, double _timeLimit) {
         points = _points;
         timeLimit = _timeLimit;
         startTime = null;
@@ -108,7 +122,7 @@ public class Keyframe implements Point {
             timeLimit = Double.parseDouble(json.get("timeLimit").toString());
             JSONArray points = (JSONArray) json.get("points");
 
-            for (int i = 0; i < points.length(); i ++) {
+            for (int i = 0; i < points.length(); i++) {
                 JSONObject point = (JSONObject) points.get(i);
                 switch ((String) point.get("pointType")) {
                     case "triPointAngle":
@@ -136,7 +150,7 @@ public class Keyframe implements Point {
 
     public boolean isWithinTime() {
         // TODO: Implement logic to determine if the timer has expired
-        return false;
+        return true;
     }
 
     public void clearTimer() {

@@ -103,11 +103,12 @@ public class PoseGraphic extends Graphic {
         List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
 
         //doesn't draw if no landmarks
-        if (!landmarks.isEmpty()) {
+        if (!landmarks.isEmpty() && poseTracker != null) {
 
             //draws the pose
             DrawAllPoints(canvas, landmarks);
             DrawAllLines(canvas);
+            poseTracker.validatePose(landmarks);
         }
 
 

@@ -152,6 +152,8 @@ dependencies {
 
     // JUnit framework
     testImplementation "junit:junit:4.12"
+
+    testImplementation 'org.json:json:20220924'
 }
 
 configurations {
