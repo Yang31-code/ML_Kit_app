@@ -40,7 +40,7 @@ public class Tracker {
         // TODO: Write the logic here to connect the lower-level functions
         Keyframe kf = kfs.get(currentKeyframe);
 
-        boolean validPose = kf.isValidPose(landmarks);
+        boolean validPose = kf.isValidPoint(landmarks);
         boolean withinTime = kf.isWithinTime();
         if (!withinTime) {
             // reset the state

@@ -60,30 +60,6 @@ public class PoseGraphic extends Graphic {
     static Tracker tracker;
     //end custom variable
 
-
-//    class Point {
-//        public double x;
-//        public double y;
-//
-//        public Point(double _x, double _y) {
-//            x = _x;
-//            y = _y;
-//        }
-//    }
-//
-//    class KeyFrame {
-//        List<Integer> toTrack = new ArrayList<>();
-//        double angle;
-//        double leniency;
-//
-//        KeyFrame(List<Integer> _toTrack, double _angle, double _leniency) {
-//            toTrack = _toTrack;
-//            angle = _angle;
-//            leniency = _leniency;
-//        }
-//    }
-
-
     PoseGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, boolean visualizeZ, boolean rescaleZForVisualization) {
 
         super(overlay);
