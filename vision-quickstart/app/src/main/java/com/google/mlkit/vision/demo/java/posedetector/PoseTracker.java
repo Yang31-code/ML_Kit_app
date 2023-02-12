@@ -39,6 +39,7 @@ public class PoseTracker {
     public boolean validatePose(List<PoseLandmark> landmarks) {
         Keyframe kf = kfs.get(currentKeyframe);
 
+//        System.out.println("Validating pose");
         boolean validPose = kf.isValidPoint(landmarks);
         boolean withinTime = kf.isWithinTime();
         if (!withinTime) {
@@ -50,9 +51,11 @@ public class PoseTracker {
         } else if (!validPose) {
             // pose is not valid but is still within time
             // continue
+            System.out.println("Invalid pose");
         } else {
             // move to the next keyframe
             // or terminate if traversed all keyframes
+            System.out.println("Pass");
             if (currentKeyframe == kfs.size() - 1) {
                 status = true;
             } else {
@@ -62,4 +65,11 @@ public class PoseTracker {
         return status;
     }
 
+    public int getPoseStatus() {
+        return currentKeyframe + 1;
+    }
+
+    public String getPoseInfo() {
+        return kfs.get(currentKeyframe).getInfo();
+    }
 }

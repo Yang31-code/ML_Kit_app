@@ -6,17 +6,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
 interface Point {
     boolean isValidPoint(List<PoseLandmark> landmarks);
+    String getInfo();
 }
 
 class TriPointAngle implements Point {
     private List<Integer> toTrack;
     private int angle;
+    private double actualAngle;
     private double leniency;
 
     public TriPointAngle(List<Integer> _toTrack, int _angle, double _leniency) {
@@ -53,17 +56,24 @@ class TriPointAngle implements Point {
         PoseLandmark p2 = landmarks.get(toTrack.get(1));
         PoseLandmark p3 = landmarks.get(toTrack.get(2));
 
-        double actualAngle = Util.getAngle(p1.getPosition().x, p1.getPosition().y, p2.getPosition().x, p2.getPosition().y, p3.getPosition().x, p3.getPosition().y);
+        actualAngle = Util.getAngle(p1.getPosition().x, p1.getPosition().y, p2.getPosition().x, p2.getPosition().y, p3.getPosition().x, p3.getPosition().y);
 
-        System.out.println("Target angle: " + angle);
-        System.out.println("Actual angle: " + actualAngle);
+//        System.out.println("Target angle: " + angle);
+//        System.out.println("Actual angle: " + actualAngle);
 
         return Math.abs(actualAngle - angle) < leniency;
+    }
+
+    @Override
+    public String getInfo() {
+        String info = "Target: " + angle + "\nActual: " + actualAngle;
+        return info;
     }
 }
 
 class DualPointDistance implements Point {
     private List<Double> target;
+    private List<Double> actual;
     private int toTrack;
     private double leniency;
 
@@ -96,12 +106,19 @@ class DualPointDistance implements Point {
     @Override
     public boolean isValidPoint(List<PoseLandmark> landmarks) {
         PoseLandmark point = landmarks.get(toTrack);
-        double distance = Util.getDistance(point.getPosition().x, point.getPosition().y, target.get(0), target.get(1));
+        actual = Arrays.asList((double) point.getPosition().x, (double) point.getPosition().y);
+        double distance = Util.getDistance(actual.get(0), actual.get(1), target.get(0), target.get(1));
 
-        System.out.println("Target position: " + target);
-        System.out.println("Actual distance: " + point.getPosition().x + ", " + point.getPosition().y);
+//        System.out.println("Target position: " + target);
+//        System.out.println("Actual distance: " + actual.get(0) + ", " + actual.get(1));
 
         return distance < leniency;
+    }
+
+    @Override
+    public String getInfo() {
+        String info = "Target: " + target + "\nActual: " + actual;
+        return info;
     }
 }
 
@@ -146,6 +163,19 @@ public class Keyframe implements Point {
             if (!points.get(i).isValidPoint(landmarks))
                 return false;
         return true;
+    }
+
+    @Override
+    public String getInfo() {
+        // TODO
+        String info = "";
+
+        for (int i = 0; i < points.size(); i++) {
+            info += points.get(i).getInfo();
+            info += "\n";
+        }
+
+        return info;
     }
 
     public boolean isWithinTime() {
