@@ -106,9 +106,9 @@ public class PoseGraphic extends Graphic {
         if (!landmarks.isEmpty() && poseTracker != null) {
 
             //draws the pose
+            poseTracker.validatePose(landmarks);
             DrawAllPoints(canvas, landmarks);
             DrawAllLines(canvas);
-            poseTracker.validatePose(landmarks);
             canvas.drawText(poseTracker.getPoseInfo(), 20, 600, textPaint);
         }
 
