@@ -44,6 +44,13 @@ android {
     aaptOptions {
         noCompress "tflite"
     }
+    sourceSets {
+        main {
+            java {
+                srcDirs 'src\\main\\java', 'src\\tests'
+            }
+        }
+    }
 }
 
 repositories {
@@ -143,6 +150,10 @@ dependencies {
 
     implementation "com.android.volley:volley:1.2.1"
 
+    // JUnit framework
+    testImplementation "junit:junit:4.12"
+
+    testImplementation 'org.json:json:20220924'
 }
 
 configurations {

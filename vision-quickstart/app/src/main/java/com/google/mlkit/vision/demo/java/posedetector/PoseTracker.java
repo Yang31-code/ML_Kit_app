@@ -2,6 +2,7 @@ package com.google.mlkit.vision.demo.java.posedetector;
 
 
 import java.util.List;
+import java.util.Arrays;
 import java.util.ArrayList;
 
 import com.google.mlkit.vision.pose.PoseLandmark;
@@ -10,19 +11,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Tracker {
+public class PoseTracker {
 
     private List<Keyframe> kfs;
     int currentKeyframe;
-    boolean status;
+    int gestureCount;
 
-    public Tracker(List<Keyframe> _kfs) {
+    public PoseTracker(List<Keyframe> _kfs) {
         kfs = _kfs;
         currentKeyframe = 0;
-        status = false;
+        gestureCount = 0;
     }
 
-    public Tracker(JSONObject json) {
+    public PoseTracker(JSONObject json) {
         this.kfs = new ArrayList<>();
         try {
             JSONArray kfs = (JSONArray) json.get("keyframes");
@@ -36,11 +37,17 @@ public class Tracker {
         }
     }
 
-    public boolean validatePose(List<PoseLandmark> landmarks) {
-        // TODO: Write the logic here to connect the lower-level functions
+    public void validatePose(List<PoseLandmark> landmarks) {
         Keyframe kf = kfs.get(currentKeyframe);
 
-        boolean validPose = kf.isValidPose(landmarks);
+        List<List<Double>> landmarks_double = new ArrayList<>(landmarks.size());
+
+        for (int i = 0; i < landmarks.size(); i++) {
+            PoseLandmark lm = landmarks.get(i);
+            landmarks_double.add(Arrays.asList((double) lm.getPosition().x, (double) lm.getPosition().y));
+        }
+
+        boolean validPose = kf.isValidPoint(landmarks_double);
         boolean withinTime = kf.isWithinTime();
         if (!withinTime) {
             // reset the state
@@ -49,17 +56,36 @@ public class Tracker {
             }
             currentKeyframe = 0;
         } else if (!validPose) {
+            // pose is not valid but is still within time
             // continue
+            System.out.println("Invalid pose");
         } else {
             // move to the next keyframe
             // or terminate if traversed all keyframes
-            if (currentKeyframe == kfs.size() - 1) {
-                status = true;
+            System.out.println("Pass");
+            if (currentKeyframe >= kfs.size() - 1) {
+                resetPoseTracker();
             } else {
                 currentKeyframe++;
             }
         }
-        return status;
     }
 
+    public void resetPoseTracker() {
+
+        gestureCount++;
+
+        currentKeyframe = 0;
+
+        for (int i = 0; i < kfs.size(); i++)
+            kfs.get(i).clearTimer();
+    }
+
+    public int getPoseStatus() {
+        return currentKeyframe + 1;
+    }
+
+    public List<String> getPoseInfo() {
+        return kfs.get(currentKeyframe).getInfo();
+    }
 }
