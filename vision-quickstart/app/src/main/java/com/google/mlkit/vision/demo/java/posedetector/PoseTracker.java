@@ -15,12 +15,12 @@ public class PoseTracker {
 
     private List<Keyframe> kfs;
     int currentKeyframe;
-    boolean status;
+    int gestureCount;
 
     public PoseTracker(List<Keyframe> _kfs) {
         kfs = _kfs;
         currentKeyframe = 0;
-        status = false;
+        gestureCount = 0;
     }
 
     public PoseTracker(JSONObject json) {
@@ -37,10 +37,8 @@ public class PoseTracker {
         }
     }
 
-    public boolean validatePose(List<PoseLandmark> landmarks) {
+    public void validatePose(List<PoseLandmark> landmarks) {
         Keyframe kf = kfs.get(currentKeyframe);
-
-        // TODO: Convert List<PoseLandmark> into List<List<Double>>
 
         List<List<Double>> landmarks_double = new ArrayList<>(landmarks.size());
 
@@ -65,28 +63,29 @@ public class PoseTracker {
             // move to the next keyframe
             // or terminate if traversed all keyframes
             System.out.println("Pass");
-            if (currentKeyframe == kfs.size() - 1) {
-                status = true;
+            if (currentKeyframe >= kfs.size() - 1) {
+                resetPoseTracker();
             } else {
                 currentKeyframe++;
             }
         }
-        return status;
     }
 
     public void resetPoseTracker() {
+
+        gestureCount++;
+
         currentKeyframe = 0;
-        status = false;
-        for (int i = 0; i < kfs.size(); i++) {
+
+        for (int i = 0; i < kfs.size(); i++)
             kfs.get(i).clearTimer();
-        }
     }
 
     public int getPoseStatus() {
         return currentKeyframe + 1;
     }
 
-    public String getPoseInfo() {
+    public List<String> getPoseInfo() {
         return kfs.get(currentKeyframe).getInfo();
     }
 }

@@ -1,8 +1,25 @@
 package com.google.mlkit.vision.demo.java.posedetector;
 
 import java.lang.Math;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Util {
+
+    public static Integer screenHeight = 0;
+    public static Integer screenWidth = 0;
+
+    //returns exact pixel values of the screen from a ratio vector array
+    public static List<Double> ScreenRatioVectorToPixelVector(List<Double> ratio) {
+
+        List<Double> toReturn = new ArrayList<>();
+
+        toReturn.add(ratio.get(0) * Util.screenWidth);
+        toReturn.add(ratio.get(1) * Util.screenHeight);
+
+        return toReturn;
+    }
+
     public static double getDistance(double x1, double y1, double x2, double y2) {
         double xDistance = Math.pow(x1 - x2, 2);
         double yDistance = Math.pow(y1 - y2, 2);

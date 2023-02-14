@@ -1,7 +1,5 @@
 package com.google.mlkit.vision.demo.java.posedetector;
 
-import com.google.mlkit.vision.pose.PoseLandmark;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,37 +9,36 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
+//remember to check invalid point type (point type that has not been implemented in java yet)
+
 interface Point {
     boolean isValidPoint(List<List<Double>> landmarks);
-    String getInfo();
+    List<String> getInfo();
 }
 
 class TriPointAngle implements Point {
     private List<Integer> toTrack;
-    private int angle;
-    private double actualAngle;
+    private int target;
+    private double actual;
     private double leniency;
 
     public TriPointAngle(List<Integer> _toTrack, int _angle, double _leniency) {
         toTrack = _toTrack;
-        angle = _angle;
+        target = _angle;
         leniency = _leniency;
     }
 
     public TriPointAngle(JSONObject json) {
         try {
             toTrack = new ArrayList<>();
-            angle = (int) json.get("angle");
+            target = (int) json.get("angle");
             leniency = Double.parseDouble(json.get("leniency").toString());
             JSONArray points = (JSONArray) json.get("toTrack");
 
             for (int i = 0; i < points.length(); i++) {
                 toTrack.add((int) points.get(i));
             }
-//            System.out.println("TriPointAngle");
-//            System.out.println(angle);
-//            System.out.println(toTrack);
-//            System.out.println(leniency);
+
         } catch (JSONException e) {
             System.out.println(e);
             return;
@@ -56,47 +53,57 @@ class TriPointAngle implements Point {
         List<Double> p2 = landmarks.get(toTrack.get(1));
         List<Double> p3 = landmarks.get(toTrack.get(2));
 
-        actualAngle = Util.getAngle(p1.get(0), p1.get(1), p2.get(0), p2.get(1), p3.get(0), p3.get(1));
+        actual = Util.getAngle(p1.get(0), p1.get(1), p2.get(0), p2.get(1), p3.get(0), p3.get(1));
 
 //        System.out.println("Target angle: " + angle);
 //        System.out.println("Actual angle: " + actualAngle);
 
-        return Math.abs(actualAngle - angle) < leniency;
+        return Math.abs(actual - target) < leniency;
     }
 
     @Override
-    public String getInfo() {
-        String info = "Target: " + angle + "\nActual: " + actualAngle;
-        return info;
+    public List<String>  getInfo() {
+
+        List<String> poseFeedback = new ArrayList<>();
+
+        poseFeedback.add("Target angle: " + target);
+        poseFeedback.add("Actual angle: " + String.format("%.1f", actual));
+
+        return poseFeedback;
     }
 }
 
-class DualPointDistance implements Point {
+class UniPointPosition implements Point {
+    private int toTrack;
     private List<Double> target;
     private List<Double> actual;
-    private int toTrack;
     private double leniency;
 
-    public DualPointDistance(List<Double> _target, int _toTrack, double _leniency) {
+    public UniPointPosition(List<Double> _target, int _toTrack, double _leniency) {
         target = _target;
         toTrack = _toTrack;
         leniency = _leniency;
     }
 
-    public DualPointDistance(JSONObject json) {
+    public UniPointPosition(JSONObject json) {
         try {
-            target = new ArrayList<>();
-            toTrack = (int) json.get("toTrack");
-            leniency = Double.parseDouble(json.get("leniency").toString());
-            JSONArray points = (JSONArray) json.get("target");
 
-            for (int i = 0; i < points.length(); i++) {
-                target.add((Double) points.get(i));
-            }
-//            System.out.println("DualPointDistance");
-//            System.out.println(target);
-//            System.out.println(toTrack);
-//            System.out.println(leniency);
+            //to track parsing
+            JSONArray toTrackJson = (JSONArray) json.get("toTrack");
+            toTrack = (int) toTrackJson.get(0);
+
+            //target to reach parsing
+            JSONArray targetJson = (JSONArray) json.get("target"); //gets the json array of the target to track (in screen ratio)
+
+            List<Double> toTrackRatio = new ArrayList<>(); //array to store java target (still screen ratio)
+            for (int i = 0; i < targetJson.length(); i++)
+                toTrackRatio.add((Double) targetJson.get(i)); //converts the json array into the java array (still screen ratio target)
+
+            target = Util.ScreenRatioVectorToPixelVector(toTrackRatio); //gets the pixel values for the target to track
+
+            //leniency parsing
+            leniency = Double.parseDouble(json.get("leniency").toString());
+
         } catch (JSONException e) {
             System.out.println(e);
             return;
@@ -116,9 +123,13 @@ class DualPointDistance implements Point {
     }
 
     @Override
-    public String getInfo() {
-        String info = "Target: " + target + "\nActual: " + actual;
-        return info;
+    public List<String>  getInfo() {
+
+        List<String> poseFeedback = new ArrayList<>();
+        poseFeedback.add("Target point: " + String.format("%.1f", target.get(0)) + ", " + String.format("%.1f", target.get(1)));
+        poseFeedback.add("Actual point: " + String.format("%.1f", actual.get(0)) + ", " + String.format("%.1f", actual.get(1)));
+
+        return poseFeedback;
     }
 }
 
@@ -146,7 +157,7 @@ public class Keyframe implements Point {
                         this.points.add(new TriPointAngle(point));
                         break;
                     case "pointPosition":
-                        this.points.add(new DualPointDistance(point));
+                        this.points.add(new UniPointPosition(point));
                         break;
                 }
             }
@@ -167,16 +178,21 @@ public class Keyframe implements Point {
     }
 
     @Override
-    public String getInfo() {
-        // TODO
-        String info = "";
+    public List<String>  getInfo() {
 
+        List<String> poseFeedback = new ArrayList<>();
+
+        //loops through each point in this frame
         for (int i = 0; i < points.size(); i++) {
-            info += points.get(i).getInfo();
-            info += "\n";
+
+            //gets the list of output strings
+            List<String> thisFramesInfo = points.get(i).getInfo();
+
+            //combines the two lists
+            poseFeedback.addAll(thisFramesInfo);
         }
 
-        return info;
+        return poseFeedback;
     }
 
     public boolean isWithinTime() {

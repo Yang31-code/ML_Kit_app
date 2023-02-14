@@ -16,6 +16,7 @@ import com.google.mlkit.vision.pose.PoseLandmark;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.android.volley.Request;
@@ -47,13 +48,6 @@ public class PoseGraphic extends Graphic {
     private final Paint textPaint;
 
     //start custom variables
-    //    static List<KeyFrame> points = new ArrayList<>();
-    static int gestureIndex = 0;
-    static boolean finished = false;
-    static int gestureCount = 0;
-
-    static String trackStatus = "null";
-
     static JSONObject gestureJson;
     static PoseTracker poseTracker = null;
     //end custom variable
@@ -90,7 +84,7 @@ public class PoseGraphic extends Graphic {
 
         //start custom code
         if (poseTracker == null) {
-            SetupKeyFrames();
+            SetupKeyFrames(overlay);
         }
         //end custom code
     }
@@ -99,42 +93,42 @@ public class PoseGraphic extends Graphic {
     @Override
     public void draw(Canvas canvas) {
 
+        int textHeight = 100;
         //gets the list of all body landmarks
         List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
+
+        //outputs what keyframe is being tracked
+        int y = 250;
+        int x = 25;
+
+        if (gestureJson != null) {
+            try {
+                String fileType = (String) gestureJson.get("fileType");
+                canvas.drawText("File type: " + fileType, x, y, textPaint);
+            } catch (JSONException e) {
+                canvas.drawText("Error getting file type", x, y, textPaint);
+            }
+        }
+
 
         //doesn't draw if no landmarks
         if (!landmarks.isEmpty() && poseTracker != null) {
 
             //draws the pose
-            poseTracker.validatePose(landmarks);
             DrawAllPoints(canvas, landmarks);
             DrawAllLines(canvas);
-            canvas.drawText(poseTracker.getPoseInfo(), 20, 600, textPaint);
-        }
+            poseTracker.validatePose(landmarks);
 
 
-        //outputs what keyframe is being tracked
-        int y = 300;
+            y += textHeight;
+            canvas.drawText("Gestures detected: " + poseTracker.gestureCount, x, y, textPaint);
 
-        if (gestureJson != null) {
-            try {
-                String fileType = (String) gestureJson.get("fileType");
-                canvas.drawText("File type: " + fileType, 10, y, textPaint);
-            } catch (JSONException e) {
-                canvas.drawText("Error getting file type", 10, y, textPaint);
+            List<String> poseFeedback = poseTracker.getPoseInfo();
+            for (int i = 0; i < poseFeedback.size(); i++){
+                y += textHeight;
+                canvas.drawText(poseFeedback.get(i), x, y, textPaint);
             }
         }
-
-
-        y += 100;
-        canvas.drawText("Gestures completed: " + gestureCount, 10, y, textPaint);
-
-        y += 100;
-        if (trackStatus == "tooBig")
-            canvas.drawText("Elbow angle too big!", 10, y, textPaint);
-        else
-            canvas.drawText("Elbow angle too small!", 10, y, textPaint);
-
         //end tracking code
     }
 
@@ -237,7 +231,12 @@ public class PoseGraphic extends Graphic {
 
     //start custom functions
 
-    void SetupKeyFrames() {
+    void SetupKeyFrames(GraphicOverlay overlay) {
+
+        //saves the screen size
+        Util.screenWidth = overlay.getImageWidth();
+        Util.screenHeight = overlay.getImageHeight();
+
         PullGestureJson();
     }
 
