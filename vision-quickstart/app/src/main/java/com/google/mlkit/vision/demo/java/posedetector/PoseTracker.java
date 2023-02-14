@@ -2,6 +2,7 @@ package com.google.mlkit.vision.demo.java.posedetector;
 
 
 import java.util.List;
+import java.util.Arrays;
 import java.util.ArrayList;
 
 import com.google.mlkit.vision.pose.PoseLandmark;
@@ -39,8 +40,16 @@ public class PoseTracker {
     public boolean validatePose(List<PoseLandmark> landmarks) {
         Keyframe kf = kfs.get(currentKeyframe);
 
-//        System.out.println("Validating pose");
-        boolean validPose = kf.isValidPoint(landmarks);
+        // TODO: Convert List<PoseLandmark> into List<List<Double>>
+
+        List<List<Double>> landmarks_double = new ArrayList<>(landmarks.size());
+
+        for (int i = 0; i < landmarks.size(); i++) {
+            PoseLandmark lm = landmarks.get(i);
+            landmarks_double.add(Arrays.asList((double) lm.getPosition().x, (double) lm.getPosition().y));
+        }
+
+        boolean validPose = kf.isValidPoint(landmarks_double);
         boolean withinTime = kf.isWithinTime();
         if (!withinTime) {
             // reset the state
@@ -63,6 +72,14 @@ public class PoseTracker {
             }
         }
         return status;
+    }
+
+    public void resetPoseTracker() {
+        currentKeyframe = 0;
+        status = false;
+        for (int i = 0; i < kfs.size(); i++) {
+            kfs.get(i).clearTimer();
+        }
     }
 
     public int getPoseStatus() {

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 interface Point {
-    boolean isValidPoint(List<PoseLandmark> landmarks);
+    boolean isValidPoint(List<List<Double>> landmarks);
     String getInfo();
 }
 
@@ -49,14 +49,14 @@ class TriPointAngle implements Point {
     }
 
     @Override
-    public boolean isValidPoint(List<PoseLandmark> landmarks) {
+    public boolean isValidPoint(List<List<Double>> landmarks) {
         // get tracking points from landmarks
         // calculate the angle of the tracked points
-        PoseLandmark p1 = landmarks.get(toTrack.get(0));
-        PoseLandmark p2 = landmarks.get(toTrack.get(1));
-        PoseLandmark p3 = landmarks.get(toTrack.get(2));
+        List<Double> p1 = landmarks.get(toTrack.get(0));
+        List<Double> p2 = landmarks.get(toTrack.get(1));
+        List<Double> p3 = landmarks.get(toTrack.get(2));
 
-        actualAngle = Util.getAngle(p1.getPosition().x, p1.getPosition().y, p2.getPosition().x, p2.getPosition().y, p3.getPosition().x, p3.getPosition().y);
+        actualAngle = Util.getAngle(p1.get(0), p1.get(1), p2.get(0), p2.get(1), p3.get(0), p3.get(1));
 
 //        System.out.println("Target angle: " + angle);
 //        System.out.println("Actual angle: " + actualAngle);
@@ -104,11 +104,11 @@ class DualPointDistance implements Point {
     }
 
     @Override
-    public boolean isValidPoint(List<PoseLandmark> landmarks) {
-        PoseLandmark point = landmarks.get(toTrack);
-        actual = Arrays.asList((double) point.getPosition().x, (double) point.getPosition().y);
+    public boolean isValidPoint(List<List<Double>> landmarks) {
+        // TODO: Use List<List<Double>> instead
+        List<Double> point = landmarks.get(toTrack);
+        actual = Arrays.asList((double) point.get(0), (double) point.get(1));
         double distance = Util.getDistance(actual.get(0), actual.get(1), target.get(0), target.get(1));
-
 //        System.out.println("Target position: " + target);
 //        System.out.println("Actual distance: " + actual.get(0) + ", " + actual.get(1));
 
@@ -157,7 +157,8 @@ public class Keyframe implements Point {
     }
 
     @Override
-    public boolean isValidPoint(List<PoseLandmark> landmarks) {
+    public boolean isValidPoint(List<List<Double>> landmarks) {
+        // TODO: Use List<List<Double>> instead
         // Iterate through every point
         for (int i = 0; i < points.size(); i++)
             if (!points.get(i).isValidPoint(landmarks))
