@@ -4,6 +4,8 @@ import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.time.Duration;
+
 public class Util {
 
     public static Integer screenHeight = 0;
@@ -33,5 +35,9 @@ public class Util {
         double radian = Math.acos((Math.pow(len1_2, 2) + Math.pow(len2_3, 2) - Math.pow(len1_3, 2)) / (2 * len1_2 * len2_3));
         double degrees = Math.toDegrees(radian);
         return degrees;
+    }
+
+    public static float getDecimalSeconds(Duration time) {
+        return (float) time.toMillis() / 1000;
     }
 }
