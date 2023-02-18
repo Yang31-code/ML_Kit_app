@@ -191,22 +191,18 @@ public class Keyframe implements Point {
         if (timeLimit != null && startTime != null) {
             Duration timeDiff = Duration.between(startTime, Instant.now());
             Duration timeLeft = timeLimit.minus(timeDiff);
-            poseFeedback.add("Time left: " + Util.getDecimalSeconds(timeLeft));
-            poseFeedback.add("Time elapsed: " + Util.getDecimalSeconds(timeDiff));
-            poseFeedback.add("Time limit: " + Util.getDecimalSeconds(timeLimit));
-            //loops through each point in this frame
-//            for (int i = 0; i < points.size(); i++) {
-//
-//                //gets the list of output strings
-//                List<String> thisFramesInfo = points.get(i).getInfo();
-//
-//                //combines the two lists
-//                poseFeedback.addAll(thisFramesInfo);
-//            }
+            poseFeedback.add("Time left for this keyframe: " + Util.getDecimalSeconds(timeLeft));
         } else {
             poseFeedback.add("No timer");
         }
 
+        //loops through each point in this frame
+        for (int i = 0; i < points.size(); i++) {
+            //gets the list of output strings
+            List<String> thisFramesInfo = points.get(i).getInfo();
+            //combines the two lists
+            poseFeedback.addAll(thisFramesInfo);
+        }
         return poseFeedback;
     }
 
