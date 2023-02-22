@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.time.Duration;
 import java.time.Instant;
 
-//remember to check invalid point type (point type that has not been implemented in java yet)
-
 interface Point {
     boolean isValidPoint(List<List<Double>> landmarks);
     List<String> getInfo();
