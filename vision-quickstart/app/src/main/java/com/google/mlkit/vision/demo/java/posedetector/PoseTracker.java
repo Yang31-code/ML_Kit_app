@@ -51,7 +51,7 @@ public class PoseTracker {
         boolean withinTime = kf.isWithinTime();
         if (!withinTime) {
             // reset the state
-            for (int i = 0; i < currentKeyframe; i++) {
+            for (int i = 0; i < currentKeyframe + 1; i++) {
                 kfs.get(i).clearTimer();
             }
             currentKeyframe = 0;
@@ -66,6 +66,7 @@ public class PoseTracker {
             if (currentKeyframe >= kfs.size() - 1) {
                 resetPoseTracker();
             } else {
+                kfs.get(currentKeyframe).clearTimer();
                 currentKeyframe++;
             }
         }
@@ -86,6 +87,8 @@ public class PoseTracker {
     }
 
     public List<String> getPoseInfo() {
-        return kfs.get(currentKeyframe).getInfo();
+        List<String> info = kfs.get(currentKeyframe).getInfo();
+        info.add("Current Keyframe: " + currentKeyframe);
+        return info;
     }
 }

@@ -92,6 +92,15 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
 
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            androidx.core.app.ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.CAMERA}, 1);
+        }
+
+        while (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {}
+
         if (savedInstanceState != null) {
             selectedModel = savedInstanceState.getString(STATE_SELECTED_MODEL, POSE_DETECTION);
         }

@@ -5,11 +5,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
-//remember to check invalid point type (point type that has not been implemented in java yet)
+import java.time.Duration;
+import java.time.Instant;
 
 interface Point {
     boolean isValidPoint(List<List<Double>> landmarks);
@@ -112,7 +112,6 @@ class UniPointPosition implements Point {
 
     @Override
     public boolean isValidPoint(List<List<Double>> landmarks) {
-        // TODO: Use List<List<Double>> instead
         List<Double> point = landmarks.get(toTrack);
         actual = Arrays.asList((double) point.get(0), (double) point.get(1));
         double distance = Util.getDistance(actual.get(0), actual.get(1), target.get(0), target.get(1));
@@ -135,10 +134,10 @@ class UniPointPosition implements Point {
 
 public class Keyframe implements Point {
     private List<Point> points;
-    private Date startTime;
-    private double timeLimit;
+    private Instant startTime;
+    private Duration timeLimit;
 
-    public Keyframe(List<Point> _points, double _timeLimit) {
+    public Keyframe(List<Point> _points, Duration _timeLimit) {
         points = _points;
         timeLimit = _timeLimit;
         startTime = null;
@@ -147,7 +146,12 @@ public class Keyframe implements Point {
     public Keyframe(JSONObject json) {
         this.points = new ArrayList<>();
         try {
-            timeLimit = Double.parseDouble(json.get("timeLimit").toString());
+            double tl = Double.parseDouble(json.get("timeLimit").toString());
+            if (tl == -1) {
+                timeLimit = null;
+            } else {
+                timeLimit = Duration.ofMillis((long) (tl * 1000));
+            }
             JSONArray points = (JSONArray) json.get("points");
 
             for (int i = 0; i < points.length(); i++) {
@@ -161,6 +165,7 @@ public class Keyframe implements Point {
                         break;
                 }
             }
+
         } catch (JSONException e) {
             System.out.println(e);
             return;
@@ -169,7 +174,6 @@ public class Keyframe implements Point {
 
     @Override
     public boolean isValidPoint(List<List<Double>> landmarks) {
-        // TODO: Use List<List<Double>> instead
         // Iterate through every point
         for (int i = 0; i < points.size(); i++)
             if (!points.get(i).isValidPoint(landmarks))
@@ -182,21 +186,35 @@ public class Keyframe implements Point {
 
         List<String> poseFeedback = new ArrayList<>();
 
+        if (timeLimit != null && startTime != null) {
+            Duration timeDiff = Duration.between(startTime, Instant.now());
+            Duration timeLeft = timeLimit.minus(timeDiff);
+            poseFeedback.add("Time left for this keyframe: " + Util.getDecimalSeconds(timeLeft));
+        } else {
+            poseFeedback.add("No timer");
+        }
+
         //loops through each point in this frame
         for (int i = 0; i < points.size(); i++) {
-
             //gets the list of output strings
             List<String> thisFramesInfo = points.get(i).getInfo();
-
             //combines the two lists
             poseFeedback.addAll(thisFramesInfo);
         }
-
         return poseFeedback;
     }
 
     public boolean isWithinTime() {
         // TODO: Implement logic to determine if the timer has expired
+        if (timeLimit == null) {
+            // do nothing
+        } else if (startTime == null) {
+            startTime = Instant.now();
+        } else {
+            Instant currentTime = Instant.now();
+            Duration timeDiff = Duration.between(startTime, currentTime);
+            return timeDiff.compareTo(timeLimit) < 0;
+        }
         return true;
     }
 
