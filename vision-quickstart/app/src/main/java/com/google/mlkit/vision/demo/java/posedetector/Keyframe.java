@@ -13,7 +13,26 @@ import java.time.Instant;
 
 interface Point {
     boolean isValidPoint(List<List<Double>> landmarks);
+
     List<String> getInfo();
+}
+
+//unknown point type. Will always return true on tracking
+class UnknownPoint implements Point {
+    public UnknownPoint() {
+    }
+
+    @Override
+    public boolean isValidPoint(List<List<Double>> landmarks) {
+        return true;
+    }
+
+    @Override
+    public List<String> getInfo() {
+        List<String> poseFeedback = new ArrayList<>();
+        poseFeedback.add("Unknown point. Should be skipped automatically");
+        return poseFeedback;
+    }
 }
 
 class TriPointAngle implements Point {
@@ -47,22 +66,20 @@ class TriPointAngle implements Point {
 
     @Override
     public boolean isValidPoint(List<List<Double>> landmarks) {
+
         // get tracking points from landmarks
-        // calculate the angle of the tracked points
         List<Double> p1 = landmarks.get(toTrack.get(0));
         List<Double> p2 = landmarks.get(toTrack.get(1));
         List<Double> p3 = landmarks.get(toTrack.get(2));
 
+        // calculate the angle of the tracked points
         actual = Util.getAngle(p1.get(0), p1.get(1), p2.get(0), p2.get(1), p3.get(0), p3.get(1));
-
-//        System.out.println("Target angle: " + angle);
-//        System.out.println("Actual angle: " + actualAngle);
 
         return Math.abs(actual - target) < leniency;
     }
 
     @Override
-    public List<String>  getInfo() {
+    public List<String> getInfo() {
 
         List<String> poseFeedback = new ArrayList<>();
 
@@ -112,17 +129,17 @@ class UniPointPosition implements Point {
 
     @Override
     public boolean isValidPoint(List<List<Double>> landmarks) {
+
         List<Double> point = landmarks.get(toTrack);
+
         actual = Arrays.asList((double) point.get(0), (double) point.get(1));
         double distance = Util.getDistance(actual.get(0), actual.get(1), target.get(0), target.get(1));
-//        System.out.println("Target position: " + target);
-//        System.out.println("Actual distance: " + actual.get(0) + ", " + actual.get(1));
 
         return distance < leniency;
     }
 
     @Override
-    public List<String>  getInfo() {
+    public List<String> getInfo() {
 
         List<String> poseFeedback = new ArrayList<>();
         poseFeedback.add("Target point: " + String.format("%.1f", target.get(0)) + ", " + String.format("%.1f", target.get(1)));
@@ -138,7 +155,7 @@ class PointAbovePoint implements Point {
 
     private Double actualBelow;
     private Double actualAbove;
-    
+
     private double leniency;
 
 
@@ -155,11 +172,9 @@ class PointAbovePoint implements Point {
             leniency = Double.parseDouble(json.get("leniency").toString());
 
 
-        } catch  (JSONException e) {
-
+        } catch (JSONException e) {
             System.out.println(e);
             return;
-
         }
     }
 
@@ -176,12 +191,11 @@ class PointAbovePoint implements Point {
         actualBelow = toBeBelowY;
         actualAbove = toBeAboveY;
 
-
         return toBeAboveY - leniency > toBeBelowY;
     }
 
     @Override
-    public List<String>  getInfo() {
+    public List<String> getInfo() {
 
         List<String> poseFeedback = new ArrayList<>();
 
@@ -206,14 +220,16 @@ public class Keyframe implements Point {
     public Keyframe(JSONObject json) {
         this.points = new ArrayList<>();
         try {
-            double tl = Double.parseDouble(json.get("timeLimit").toString());
-            if (tl == -1) {
-                timeLimit = null;
-            } else {
-                timeLimit = Duration.ofMillis((long) (tl * 1000));
-            }
-            JSONArray points = (JSONArray) json.get("points");
 
+            //gets the timing for this keyframe
+            double tl = Double.parseDouble(json.get("timeLimit").toString());
+            if (tl == -1)
+                timeLimit = null;
+            else
+                timeLimit = Duration.ofMillis((long) (tl * 1000));
+
+            //populates the list of points for this keyframe
+            JSONArray points = (JSONArray) json.get("points");
             for (int i = 0; i < points.length(); i++) {
                 JSONObject point = (JSONObject) points.get(i);
                 switch ((String) point.get("pointType")) {
@@ -222,6 +238,12 @@ public class Keyframe implements Point {
                         break;
                     case "pointPosition":
                         this.points.add(new UniPointPosition(point));
+                        break;
+                    case "abovePosition":
+                        this.points.add(new PointAbovePoint(point));
+                        break;
+                    default:
+                        this.points.add(new UnknownPoint());
                         break;
                 }
             }
@@ -236,13 +258,17 @@ public class Keyframe implements Point {
     public boolean isValidPoint(List<List<Double>> landmarks) {
         // Iterate through every point
         for (int i = 0; i < points.size(); i++)
+
+            //returns false if any of the points were not met
             if (!points.get(i).isValidPoint(landmarks))
                 return false;
+
+        //return true if all the points were met
         return true;
     }
 
     @Override
-    public List<String>  getInfo() {
+    public List<String> getInfo() {
 
         List<String> poseFeedback = new ArrayList<>();
 
@@ -256,8 +282,10 @@ public class Keyframe implements Point {
 
         //loops through each point in this frame
         for (int i = 0; i < points.size(); i++) {
+
             //gets the list of output strings
             List<String> thisFramesInfo = points.get(i).getInfo();
+
             //combines the two lists
             poseFeedback.addAll(thisFramesInfo);
         }
