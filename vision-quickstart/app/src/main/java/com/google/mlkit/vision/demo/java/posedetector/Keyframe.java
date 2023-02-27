@@ -163,6 +163,8 @@ class PointAbovePoint implements Point {
 
         try {
 
+            toTrack = new ArrayList<>();
+
             //to track parsing
             JSONArray toTrackJson = (JSONArray) json.get("toTrack"); //should only have two points
             toTrack.add((int) toTrackJson.get(0)); //adds the point to be below
@@ -185,13 +187,13 @@ class PointAbovePoint implements Point {
         List<Double> toBeBelowVec2 = landmarks.get(toTrack.get(0));
         List<Double> toBeAboveVec2 = landmarks.get(toTrack.get(1));
 
-        double toBeBelowY = toBeBelowVec2.get(0);
-        double toBeAboveY = toBeAboveVec2.get(0);
+        double toBeBelowY = toBeBelowVec2.get(1);
+        double toBeAboveY = toBeAboveVec2.get(1);
 
         actualBelow = toBeBelowY;
         actualAbove = toBeAboveY;
 
-        return toBeAboveY - leniency > toBeBelowY;
+        return toBeAboveY + leniency < toBeBelowY;
     }
 
     @Override
@@ -256,15 +258,17 @@ public class Keyframe implements Point {
 
     @Override
     public boolean isValidPoint(List<List<Double>> landmarks) {
+
+        boolean toReturn = true;
+
         // Iterate through every point
         for (int i = 0; i < points.size(); i++)
 
-            //returns false if any of the points were not met
-            if (!points.get(i).isValidPoint(landmarks))
-                return false;
+            //cumulativeley saves if the points were met
+            toReturn &= points.get(i).isValidPoint(landmarks);
 
-        //return true if all the points were met
-        return true;
+        //returns if all the points were met
+        return toReturn;
     }
 
     @Override
