@@ -1,6 +1,5 @@
 package com.google.mlkit.vision.demo.java.posedetector.pointTypes;
 
-
 import com.google.mlkit.vision.demo.java.posedetector.Util;
 
 import org.json.JSONArray;

@@ -1,6 +1,5 @@
 package com.google.mlkit.vision.demo.java.posedetector.pointTypes;
 
-
 import java.util.ArrayList;
 import java.util.List;
 

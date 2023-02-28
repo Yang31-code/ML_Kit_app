@@ -9,15 +9,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import kotlinx.coroutines.channels.ActorKt;
 
 public class ParallelLines implements Point {
 
     private List<Integer> toTrack;
     private double leniency;
 
-    Double actualLine1Slope = 0.0;
-    Double actualLine2Slope = 0.0;
+    Double actualAng1 = 0.0;
+    Double actualAng2 = 0.0;
 
     public ParallelLines(JSONObject json) {
         try {
@@ -48,37 +47,17 @@ public class ParallelLines implements Point {
         List<Double> line2Start = landmarks.get(toTrack.get(2));
         List<Double> line2End = landmarks.get(toTrack.get(3));
 
+        actualAng1 = (Util.getAngle(line1Start, line1End));
+        actualAng2 = (Util.getAngle(line2Start, line2End));
 
-//        Double slope1 = Math.abs(GetSlope(line1Start, line1End));
-//        Double slope2 = Math.abs(GetSlope(line2Start, line2End));
-//
-        Double slope1 = (GetSlope(line1Start, line1End));
-        Double slope2 = (GetSlope(line2Start, line2End));
+        // we calculate the angle between the two lines, and the result must be in the range [0, 90]
+        // this makes sure that a line with an angle 175 and a line with an angle 8 would be deemed parallel
+        Double angDiff = Math.abs(actualAng1 - actualAng2);
+        if (angDiff > 90)
+            angDiff = 180 - angDiff;
 
-        actualLine1Slope = slope1;
-        actualLine2Slope = slope2;
+        return angDiff < leniency;
 
-        return (slope1 > slope2 - leniency && slope1 < slope2 + leniency);
-
-    }
-
-    Double GetSlope(List<Double> start, List<Double> end) {
-
-        if (start.get(0) == end.get(0))
-            if (start.get(1) > end.get(1))
-                return -90.0;
-            else
-                return 90.0;
-
-        Double deltaX = start.get(0) - end.get(0);
-        Double deltaY = start.get(1) - end.get(1);
-
-        Double tanTheta = deltaY/deltaX;
-        Double thetaRad = Math.atan(tanTheta);
-        Double thetaDeg = Math.toDegrees(thetaRad);
-        System.out.println("Degrees: " + thetaDeg + ", Radians: " + thetaRad);
-
-        return thetaDeg;
     }
 
     @Override
@@ -86,8 +65,8 @@ public class ParallelLines implements Point {
 
         List<String> poseFeedback = new ArrayList<>();
 
-        poseFeedback.add("Line 1: " + actualLine1Slope + "degrees");
-        poseFeedback.add("Line 2: " + actualLine2Slope + "degrees");
+        poseFeedback.add("Line 1: " + actualAng1 + "degrees");
+        poseFeedback.add("Line 2: " + actualAng2 + "degrees");
 
         return poseFeedback;
     }
