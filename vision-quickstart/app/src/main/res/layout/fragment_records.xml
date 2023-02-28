@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#ffffff"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:background="#7DE7F1"
+        android:layout_height="50dp">
+        <ImageView
+            android:id="@+id/title_img1"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@mipmap/search"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginLeft="10dp"
+            ></ImageView>
+
+        <Spinner
+            android:id="@+id/type"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:entries="@array/typeAll"
+            android:layout_weight="1"
+            app:layout_constraintLeft_toRightOf="@+id/title_img1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginLeft="20dp"/>
+
+        <ImageView
+            android:id="@+id/title_img3"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@mipmap/more"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginRight="10dp"
+            ></ImageView>
+        <ImageView
+            android:id="@+id/title_img2"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@mipmap/eventnote"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/title_img3"
+            android:layout_marginRight="10dp"
+            ></ImageView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ></androidx.recyclerview.widget.RecyclerView>
+</LinearLayout>

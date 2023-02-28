@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+
+    >
+    <TextView
+        android:id="@+id/settingApp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:textSize="17dp"
+        android:textColor="@color/light_green_700"
+        android:visibility="gone"
+        >
+    </TextView>
+    <RelativeLayout
+        android:id="@+id/rela"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_below="@id/settingApp"
+        >
+        <ImageView
+            android:id="@+id/settingImg"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerVertical="true"
+            >
+        </ImageView>
+
+        <TextView
+            android:id="@+id/settingTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@id/settingImg"
+            android:layout_centerVertical="true"
+            android:textSize="21dp"
+            android:textColor="#000000"
+            >
+        </TextView>
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/lineSetting"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@id/rela"
+        android:src="#e5e5e5"
+        >
+    </ImageView>
+
+
+</RelativeLayout>

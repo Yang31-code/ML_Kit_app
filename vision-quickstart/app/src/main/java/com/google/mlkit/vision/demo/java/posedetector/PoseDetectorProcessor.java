@@ -108,13 +108,14 @@ public class PoseDetectorProcessor
   protected void onSuccess(
           @NonNull PoseResult poseResult,
           @NonNull GraphicOverlay graphicOverlay) {
+    PoseGraphic graphic = new PoseGraphic(
+            graphicOverlay,
+            poseResult.pose,
+            showInFrameLikelihood,
+            visualizeZ,
+            rescaleZForVisualization);
     graphicOverlay.add(
-            new PoseGraphic(
-                    graphicOverlay,
-                    poseResult.pose,
-                    showInFrameLikelihood,
-                    visualizeZ,
-                    rescaleZForVisualization));
+            graphic);
   }
 
   @Override

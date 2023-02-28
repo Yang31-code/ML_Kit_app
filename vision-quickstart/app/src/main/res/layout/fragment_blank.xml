@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context=".preference.fragment.BlankFragment">
+
+    <RelativeLayout
+        android:id="@+id/blankRela"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        >
+        <ImageView
+            android:id="@+id/blankMenu"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/search"
+            >
+        </ImageView>
+        <EditText
+            android:layout_toRightOf="@id/blankMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:hint="Search"
+            android:textColorHint="@color/blue_grey_400"
+            >
+        </EditText>
+    </RelativeLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/blankRecy"
+        android:layout_below="@id/blankRela"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </androidx.recyclerview.widget.RecyclerView>
+</RelativeLayout>

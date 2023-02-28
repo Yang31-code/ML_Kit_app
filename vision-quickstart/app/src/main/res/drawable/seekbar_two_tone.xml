@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <corners android:radius="10dp" />
+<!--            进度条后面颜色-->
+            <solid android:color="@color/blue" />
+        </shape>
+    </item>
+    <item>
+        <clip>
+            <shape>
+                <corners android:radius="10dp" />
+<!--            进度条前面颜色-->
+                <solid android:color="@color/blue" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>

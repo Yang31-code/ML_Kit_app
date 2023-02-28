@@ -49,6 +49,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory;
 
 import com.google.android.gms.common.annotation.KeepName;
 import com.google.mlkit.common.MlKitException;
+
 import com.google.mlkit.vision.demo.CameraXViewModel;
 import com.google.mlkit.vision.demo.GraphicOverlay;
 import com.google.mlkit.vision.demo.R;
@@ -56,6 +57,7 @@ import com.google.mlkit.vision.demo.VisionImageProcessor;
 import com.google.mlkit.vision.demo.java.posedetector.PoseDetectorProcessor;
 import com.google.mlkit.vision.demo.preference.PreferenceUtils;
 import com.google.mlkit.vision.demo.preference.SettingsActivity;
+import com.google.mlkit.vision.demo.preference.TargetActivity;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
 
 import java.util.ArrayList;
@@ -84,22 +86,13 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
     private boolean needUpdateGraphicOverlayImageSourceInfo;
 
     private String selectedModel = POSE_DETECTION;
-    private int lensFacing = CameraSelector.LENS_FACING_BACK;
+    private int lensFacing = CameraSelector.LENS_FACING_FRONT;
     private CameraSelector cameraSelector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
-
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
-                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            androidx.core.app.ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.CAMERA}, 1);
-        }
-
-        while (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
-                != android.content.pm.PackageManager.PERMISSION_GRANTED) {}
 
         if (savedInstanceState != null) {
             selectedModel = savedInstanceState.getString(STATE_SELECTED_MODEL, POSE_DETECTION);
@@ -152,6 +145,11 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
                             SettingsActivity.LaunchSource.CAMERAX_LIVE_PREVIEW);
                     startActivity(intent);
                 });
+
+        ImageView targetButton = findViewById(R.id.settings_target);
+        targetButton.setOnClickListener(view -> {
+            startActivity(new Intent(this, TargetActivity.class));
+        });
     }
 
     @Override

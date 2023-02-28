@@ -6,6 +6,8 @@ import static java.lang.Math.min;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.DisplayMetrics;
+import android.util.Log;
 
 import com.google.mlkit.vision.common.PointF3D;
 import com.google.mlkit.vision.demo.GraphicOverlay;
@@ -16,7 +18,6 @@ import com.google.mlkit.vision.pose.PoseLandmark;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.android.volley.Request;
@@ -46,11 +47,49 @@ public class PoseGraphic extends Graphic {
     private final int TEXT_COLOR = Color.WHITE;
     private final float TEXT_SIZE = 60.0f;
     private final Paint textPaint;
+    private String startText = "";
+    private String endText = " Counted";
 
     //start custom variables
+    static boolean framesGot = false;
+    //    static List<KeyFrame> points = new ArrayList<>();
+    static int gestureIndex = 0;
+    static boolean finished = false;
+    static int gestureCount = 0;
+
+    static String trackStatus = "null";
+
     static JSONObject gestureJson;
-    static PoseTracker poseTracker = null;
+    static Tracker tracker;
     //end custom variable
+
+
+//    class Point {
+//        public double x;
+//        public double y;
+//
+//        public Point(double _x, double _y) {
+//            x = _x;
+//            y = _y;
+//        }
+//    }
+//
+//    class KeyFrame {
+//        List<Integer> toTrack = new ArrayList<>();
+//        double angle;
+//        double leniency;
+//
+//        KeyFrame(List<Integer> _toTrack, double _angle, double _leniency) {
+//            toTrack = _toTrack;
+//            angle = _angle;
+//            leniency = _leniency;
+//        }
+//    }
+
+    public void putText(String start,String end){
+        startText = start;
+        endText = end;
+    }
 
     PoseGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, boolean visualizeZ, boolean rescaleZForVisualization) {
 
@@ -83,8 +122,9 @@ public class PoseGraphic extends Graphic {
         rightPaint.setColor(Color.YELLOW);
 
         //start custom code
-        if (poseTracker == null) {
-            SetupKeyFrames(overlay);
+        if (!framesGot) {
+            framesGot = true;
+            SetupKeyFrames();
         }
         //end custom code
     }
@@ -93,42 +133,48 @@ public class PoseGraphic extends Graphic {
     @Override
     public void draw(Canvas canvas) {
 
-        int textHeight = 100;
         //gets the list of all body landmarks
         List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
 
-        //outputs what keyframe is being tracked
-        int y = 250;
-        int x = 25;
-
-        if (gestureJson != null) {
-            try {
-                String fileType = (String) gestureJson.get("fileType");
-                canvas.drawText("File type: " + fileType, x, y, textPaint);
-            } catch (JSONException e) {
-                canvas.drawText("Error getting file type", x, y, textPaint);
-            }
-        }
-
-
         //doesn't draw if no landmarks
-        if (!landmarks.isEmpty() && poseTracker != null) {
+        if (!landmarks.isEmpty()) {
 
             //draws the pose
             DrawAllPoints(canvas, landmarks);
             DrawAllLines(canvas);
-            poseTracker.validatePose(landmarks);
+        }
 
 
-            y += textHeight;
-            canvas.drawText("Gestures detected: " + poseTracker.gestureCount, x, y, textPaint);
+        //start tracking code
 
-            List<String> poseFeedback = poseTracker.getPoseInfo();
-            for (int i = 0; i < poseFeedback.size(); i++){
-                y += textHeight;
-                canvas.drawText(poseFeedback.get(i), x, y, textPaint);
+        Tracking(landmarks);
+
+        //outputs what keyframe is being tracked
+        int y = 300;
+
+        if (gestureJson != null) {
+            try {
+                String fileType = (String) gestureJson.get("fileType");
+                canvas.drawText("File type: " + fileType, 10, y, textPaint);
+            } catch (JSONException e) {
+                canvas.drawText("Error getting file type", 10, y, textPaint);
             }
         }
+
+
+        y += 100;
+        DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
+        int heightPixels = displayMetrics.heightPixels;
+        int widthPixels = displayMetrics.widthPixels;
+
+        canvas.drawText(startText+gestureCount+endText, (widthPixels/2.5F)-50,heightPixels-250 , textPaint);
+
+        y += 100;
+        if (trackStatus == "tooBig")
+            canvas.drawText("Elbow angle too big!", 10, y, textPaint);
+        else
+            canvas.drawText("Elbow angle too small!", 10, y, textPaint);
+
         //end tracking code
     }
 
@@ -231,13 +277,9 @@ public class PoseGraphic extends Graphic {
 
     //start custom functions
 
-    void SetupKeyFrames(GraphicOverlay overlay) {
-
-        //saves the screen size
-        Util.screenWidth = overlay.getImageWidth();
-        Util.screenHeight = overlay.getImageHeight();
-
+    void SetupKeyFrames() {
         PullGestureJson();
+        SetupTracker();
     }
 
     void PullGestureJson() {
@@ -249,10 +291,7 @@ public class PoseGraphic extends Graphic {
                 try {
                     gestureJson = new JSONObject(response);
                     System.out.println("JSON read");
-                    if (poseTracker == null) {
-                        System.out.println("Initialized the tracker object");
-                        poseTracker = new PoseTracker(gestureJson);
-                    }
+                    System.out.println(gestureJson);
                 } catch (JSONException e) {
                     System.out.println(e);
                 }
@@ -267,5 +306,20 @@ public class PoseGraphic extends Graphic {
 
         rq.add(sr);
     }
+
+    void SetupTracker() {
+        //populate tracker class in this method
+    }
+    //tracks indexes from the list of pose landmarks
+    private void Tracking(List<PoseLandmark> poseLandmarks) {
+
+        //if the gesture tracking hasn't finished yet
+        if (!finished) {
+
+
+        }
+    }
+
+
 }
 

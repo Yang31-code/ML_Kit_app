@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/vp_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <com.chaychan.library.BottomBarLayout
+        android:id="@+id/bbl"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:background="#ffffff"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <com.chaychan.library.BottomBarItem
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:iconNormal="@mipmap/eventnote"
+            app:iconSelected="@mipmap/eventnote1"
+            app:itemMarginTop="5dp"
+            app:itemText="Records"
+            app:itemTextSize="17dp"
+            app:textColorNormal="#605F5B"
+            app:textColorSelected="#35EFCA" />
+
+        <com.chaychan.library.BottomBarItem
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:iconNormal="@mipmap/search"
+            app:iconSelected="@mipmap/exercise1"
+            app:itemMarginTop="5dp"
+            app:itemText="Exercise"
+            app:itemTextSize="17dp"
+            app:textColorNormal="#605F5B"
+            app:textColorSelected="#35EFCA"/>
+
+
+        <com.chaychan.library.BottomBarItem
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:iconNormal="@mipmap/group"
+            app:iconSelected="@mipmap/group1"
+            app:itemMarginTop="5dp"
+            app:itemText="Settings"
+            app:itemTextSize="17dp"
+            app:textColorNormal="#605F5B"
+            app:textColorSelected="#35EFCA" />
+
+    </com.chaychan.library.BottomBarLayout>
+</LinearLayout>
