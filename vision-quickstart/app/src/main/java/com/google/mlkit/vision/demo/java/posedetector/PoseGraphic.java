@@ -241,7 +241,7 @@ public class PoseGraphic extends Graphic {
     }
 
     void PullGestureJson() {
-        String url = "https://api.npoint.io/7cc23e4c9216b56abf53";
+        String url = "https://api.npoint.io/534c33f088b5a5d13231";
         RequestQueue rq = Volley.newRequestQueue(getApplicationContext());
         StringRequest sr = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override

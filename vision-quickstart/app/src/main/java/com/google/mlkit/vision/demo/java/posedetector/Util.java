@@ -1,7 +1,5 @@
 package com.google.mlkit.vision.demo.java.posedetector;
 
-import androidx.core.content.ContextCompat;
-
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +35,28 @@ public class Util {
         double radian = Math.acos((Math.pow(len1_2, 2) + Math.pow(len2_3, 2) - Math.pow(len1_3, 2)) / (2 * len1_2 * len2_3));
         double degrees = Math.toDegrees(radian);
         return degrees;
+    }
+
+    public static double getAngle(List<Double> start, List<Double> end) {
+        if (start.get(0) == end.get(0))
+            if (start.get(1) > end.get(1))
+                return -90.0;
+            else
+                return 90.0;
+
+        Double deltaX = start.get(0) - end.get(0);
+        Double deltaY = start.get(1) - end.get(1);
+
+        Double thetaRad = Math.atan(deltaY/deltaX);
+        Double thetaDeg = Math.toDegrees(thetaRad);
+
+        // we convert all angles to the range [0, 180], for the ease of comparison later
+        if (thetaDeg < 0)
+            thetaDeg += 180;
+
+//        System.out.println("Degrees: " + thetaDeg + ", Radians: " + thetaRad);
+
+        return thetaDeg;
     }
 
     public static float getDecimalSeconds(Duration time) {
