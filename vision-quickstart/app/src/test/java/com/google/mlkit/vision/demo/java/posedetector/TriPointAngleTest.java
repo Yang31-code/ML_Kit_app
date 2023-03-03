@@ -1,5 +1,6 @@
 package com.google.mlkit.vision.demo.java.posedetector;
 
+import com.google.mlkit.vision.demo.java.posedetector.pointTypes.TriPointAngle;
 import static org.junit.Assert.*;
 
 import org.junit.After;
