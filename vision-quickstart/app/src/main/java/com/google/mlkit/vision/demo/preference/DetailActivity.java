@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -13,6 +14,8 @@ import com.google.mlkit.vision.demo.R;
 import com.google.mlkit.vision.demo.java.CameraXLivePreviewActivity;
 
 public class DetailActivity extends AppCompatActivity {
+
+    private String name;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -25,6 +28,7 @@ public class DetailActivity extends AppCompatActivity {
         webView.addJavascriptInterface(new JavaScriptInterface(this), "Android");
 
         String name = getIntent().getStringExtra("name");
+        this.name = name;
         String url = "file:///android_asset/" + name + ".html";
         webView.loadUrl(url);
     }
@@ -43,8 +47,16 @@ public class DetailActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public void startCamera() {
+            saveExerciseName(name);
             Intent intent = new Intent(mContext, CameraXLivePreviewActivity.class);
             mContext.startActivity(intent);
+        }
+
+        private void saveExerciseName(String exerciseName) {
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences("my_preferences", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("exercise_name", exerciseName);
+            editor.apply();
         }
     }
 }
