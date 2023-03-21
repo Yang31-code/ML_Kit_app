@@ -1,9 +1,11 @@
 package com.google.mlkit.vision.demo.preference.entity;
 
 public class RunEntity {
+    public String name;
     private String title;
     private String img;
     private Integer imgInt;
+
 
     @Override
     public String toString() {
@@ -22,10 +24,11 @@ public class RunEntity {
         this.imgInt = imgInt;
     }
 
-    public RunEntity(String title, String img, Integer imgInt) {
+    public RunEntity(String title, String img, Integer imgInt, String name) {
         this.title = title;
         this.img = img;
         this.imgInt = imgInt;
+        this.name = name;
     }
 
     public String getTitle() {

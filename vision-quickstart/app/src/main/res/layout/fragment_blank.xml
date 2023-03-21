@@ -7,34 +7,37 @@
     tools:context=".preference.fragment.BlankFragment">
 
     <RelativeLayout
-        android:id="@+id/blankRela"
+        android:id="@+id/searchBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        >
+        android:padding="10dp"
+        android:background="@drawable/search_bar_background">
+
         <ImageView
-            android:id="@+id/blankMenu"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:id="@+id/searchIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_centerVertical="true"
-            android:src="@mipmap/search"
-            >
-        </ImageView>
+            android:src="@mipmap/search" />
+
         <EditText
-            android:layout_toRightOf="@id/blankMenu"
+            android:id="@+id/searchEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/searchIcon"
+            android:layout_marginStart="10dp"
             android:hint="Search"
             android:textColorHint="@color/blue_grey_400"
-            >
-        </EditText>
+            android:background="@null"
+            android:imeOptions="actionSearch"
+            android:singleLine="true"
+            android:textColor="@android:color/black"/>
     </RelativeLayout>
-
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/blankRecy"
-        android:layout_below="@id/blankRela"
+        android:layout_below="@id/searchBar"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </androidx.recyclerview.widget.RecyclerView>

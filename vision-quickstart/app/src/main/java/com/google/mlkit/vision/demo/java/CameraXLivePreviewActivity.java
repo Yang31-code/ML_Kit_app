@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -49,7 +50,6 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory;
 
 import com.google.android.gms.common.annotation.KeepName;
 import com.google.mlkit.common.MlKitException;
-
 import com.google.mlkit.vision.demo.CameraXViewModel;
 import com.google.mlkit.vision.demo.GraphicOverlay;
 import com.google.mlkit.vision.demo.R;
@@ -57,7 +57,6 @@ import com.google.mlkit.vision.demo.VisionImageProcessor;
 import com.google.mlkit.vision.demo.java.posedetector.PoseDetectorProcessor;
 import com.google.mlkit.vision.demo.preference.PreferenceUtils;
 import com.google.mlkit.vision.demo.preference.SettingsActivity;
-import com.google.mlkit.vision.demo.preference.TargetActivity;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
 
 import java.util.ArrayList;
@@ -94,6 +93,15 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
 
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            androidx.core.app.ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.CAMERA}, 1);
+        }
+
+        while (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {}
+
         if (savedInstanceState != null) {
             selectedModel = savedInstanceState.getString(STATE_SELECTED_MODEL, POSE_DETECTION);
         }
@@ -109,20 +117,7 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
             Log.d(TAG, "graphicOverlay is null");
         }
 
-        Spinner spinner = findViewById(R.id.spinner);
-        List<String> options = new ArrayList<>();
-
-        options.add(POSE_DETECTION);
-
-
-        // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, R.layout.spinner_style, options);
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
-        spinner.setOnItemSelectedListener(this);
-
+        //button for switching camera
         ToggleButton facingSwitch = findViewById(R.id.facing_switch);
         facingSwitch.setOnCheckedChangeListener(this);
 
@@ -136,20 +131,8 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
                             bindAllCameraUseCases();
                         });
 
-        ImageView settingsButton = findViewById(R.id.settings_button);
-        settingsButton.setOnClickListener(
-                v -> {
-                    Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                    intent.putExtra(
-                            SettingsActivity.EXTRA_LAUNCH_SOURCE,
-                            SettingsActivity.LaunchSource.CAMERAX_LIVE_PREVIEW);
-                    startActivity(intent);
-                });
-
-        ImageView targetButton = findViewById(R.id.settings_target);
-        targetButton.setOnClickListener(view -> {
-            startActivity(new Intent(this, TargetActivity.class));
-        });
+        Button backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(v -> onBackPressed());
     }
 
     @Override

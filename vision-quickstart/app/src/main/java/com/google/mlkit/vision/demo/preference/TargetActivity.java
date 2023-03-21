@@ -30,11 +30,6 @@ public class TargetActivity extends AppCompatActivity {
         initData();
     }
 
-    /*
-     *
-     * viewpager适配器
-     *
-     * */
     public class fragmentAdapter extends FragmentPagerAdapter {
         public fragmentAdapter(FragmentManager fm) {
             super(fm);
@@ -64,5 +59,7 @@ public class TargetActivity extends AppCompatActivity {
 
         mViewPager.setAdapter(new fragmentAdapter(getSupportFragmentManager()));
         mBottomBarLayout.setViewPager(mViewPager);//底部bottombar;
+
+        mViewPager.setCurrentItem(1);
     }
 }

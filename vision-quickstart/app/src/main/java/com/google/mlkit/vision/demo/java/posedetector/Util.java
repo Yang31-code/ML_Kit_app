@@ -1,5 +1,15 @@
 package com.google.mlkit.vision.demo.java.posedetector;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.FirebaseDatabase;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +17,36 @@ import java.util.List;
 import java.time.Duration;
 
 public class Util {
+    public static Integer screenHeight = null;
+    public static Integer screenWidth = null;
 
-    public static Integer screenHeight = 0;
-    public static Integer screenWidth = 0;
+    public static abstract class jsonHandler {
+        abstract void parse(String name, JSONObject response);
+    }
+
+    public static void fetchJson(String path, jsonHandler handler) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        database.getReference(path).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    System.out.println("Could not fetch JSON");
+                } else {
+                    String name = task.getResult().getKey();
+                    String value = task.getResult().getValue().toString();
+                    try {
+                        JSONObject obj = new JSONObject(value);
+                        handler.parse(name, obj);
+                    } catch (JSONException e) {
+                        System.out.println(e);
+                    }
+                }
+            }
+        });
+    }
 
     //returns exact pixel values of the screen from a ratio vector array
-    public static List<Double> ScreenRatioVectorToPixelVector(List<Double> ratio) {
+    public static List<Double> screenRatioVectorToPixelVector(List<Double> ratio) {
 
         List<Double> toReturn = new ArrayList<>();
 

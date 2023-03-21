@@ -3,11 +3,11 @@ package com.google.mlkit.vision.demo.java.posedetector;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.DisplayMetrics;
-import android.util.Log;
 
 import com.google.mlkit.vision.common.PointF3D;
 import com.google.mlkit.vision.demo.GraphicOverlay;
@@ -47,52 +47,17 @@ public class PoseGraphic extends Graphic {
     private final int TEXT_COLOR = Color.WHITE;
     private final float TEXT_SIZE = 60.0f;
     private final Paint textPaint;
-    private String startText = "";
-    private String endText = " Counted";
 
     //start custom variables
-    static boolean framesGot = false;
-    //    static List<KeyFrame> points = new ArrayList<>();
-    static int gestureIndex = 0;
-    static boolean finished = false;
-    static int gestureCount = 0;
-
-    static String trackStatus = "null";
-
-    static JSONObject gestureJson;
+    GraphicOverlay overlay = null;
+//    static JSONObject timelineJson;
+//    static Timeline timeline = null;
+    List<String> poseFeedback;
     //end custom variable
 
+    PoseGraphic(GraphicOverlay _overlay, Pose pose, boolean showInFrameLikelihood, boolean visualizeZ, boolean rescaleZForVisualization, List<String> poseFeedback) {
 
-//    class Point {
-//        public double x;
-//        public double y;
-//
-//        public Point(double _x, double _y) {
-//            x = _x;
-//            y = _y;
-//        }
-//    }
-//
-//    class KeyFrame {
-//        List<Integer> toTrack = new ArrayList<>();
-//        double angle;
-//        double leniency;
-//
-//        KeyFrame(List<Integer> _toTrack, double _angle, double _leniency) {
-//            toTrack = _toTrack;
-//            angle = _angle;
-//            leniency = _leniency;
-//        }
-//    }
-
-    public void putText(String start,String end){
-        startText = start;
-        endText = end;
-    }
-
-    PoseGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, boolean visualizeZ, boolean rescaleZForVisualization) {
-
-        super(overlay);
+        super(_overlay);
 
         textPaint = new Paint();
         textPaint.setColor(TEXT_COLOR);
@@ -103,6 +68,7 @@ public class PoseGraphic extends Graphic {
         this.showInFrameLikelihood = showInFrameLikelihood;
         this.visualizeZ = visualizeZ;
         this.rescaleZForVisualization = rescaleZForVisualization;
+        this.poseFeedback = poseFeedback;
 
         classificationTextPaint = new Paint();
         classificationTextPaint.setColor(Color.WHITE);
@@ -119,65 +85,38 @@ public class PoseGraphic extends Graphic {
         rightPaint = new Paint();
         rightPaint.setStrokeWidth(STROKE_WIDTH);
         rightPaint.setColor(Color.YELLOW);
+        overlay = _overlay;
 
-        //start custom code
-        if (!framesGot) {
-            framesGot = true;
-            SetupKeyFrames();
+        if (Util.screenHeight == null && Util.screenWidth == null) {
+            Util.screenHeight = overlay.getImageHeight();
+            Util.screenWidth = overlay.getImageWidth();
         }
-        //end custom code
     }
 
 
     @Override
     public void draw(Canvas canvas) {
-
         //gets the list of all body landmarks
         List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
 
-        //doesn't draw if no landmarks
+        // Where the information is printed
+        int x = 25;
+        int y = 250;
+        int textHeight = 100;
+
         if (!landmarks.isEmpty()) {
-
             //draws the pose
-            DrawAllPoints(canvas, landmarks);
-            DrawAllLines(canvas);
-        }
+            drawAllPoints(canvas, landmarks);
+            drawAllLines(canvas);
 
-
-        //start tracking code
-
-        Tracking(landmarks);
-
-        //outputs what keyframe is being tracked
-        int y = 300;
-
-        if (gestureJson != null) {
-            try {
-                String fileType = (String) gestureJson.get("fileType");
-                canvas.drawText("File type: " + fileType, 10, y, textPaint);
-            } catch (JSONException e) {
-                canvas.drawText("Error getting file type", 10, y, textPaint);
+            for (int i = 0; i < poseFeedback.size(); i++) {
+                canvas.drawText(poseFeedback.get(i), x, y, textPaint);
+                y += textHeight;
             }
         }
-
-
-        y += 100;
-        DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
-        int heightPixels = displayMetrics.heightPixels;
-        int widthPixels = displayMetrics.widthPixels;
-
-        canvas.drawText(startText+gestureCount+endText, (widthPixels/2.5F)-50,heightPixels-250 , textPaint);
-
-        y += 100;
-        if (trackStatus == "tooBig")
-            canvas.drawText("Elbow angle too big!", 10, y, textPaint);
-        else
-            canvas.drawText("Elbow angle too small!", 10, y, textPaint);
-
-        //end tracking code
     }
 
-    void DrawAllPoints(Canvas canvas, List<PoseLandmark> landmarks) {
+    void drawAllPoints(Canvas canvas, List<PoseLandmark> landmarks) {
 
         // Draw all the points
         for (PoseLandmark landmark : landmarks) {
@@ -191,14 +130,7 @@ public class PoseGraphic extends Graphic {
         }
     }
 
-    void drawPoint(Canvas canvas, PoseLandmark landmark, Paint paint) {
-        PointF3D point = landmark.getPosition3D();
-        updatePaintColorByZValue(
-                paint, canvas, visualizeZ, rescaleZForVisualization, point.getZ(), zMin, zMax);
-        canvas.drawCircle(translateX(point.getX()), translateY(point.getY()), DOT_RADIUS, paint);
-    }
-
-    void DrawAllLines(Canvas canvas) {
+    void drawAllLines(Canvas canvas) {
 
         PoseLandmark leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER);
         PoseLandmark rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER);
@@ -255,6 +187,13 @@ public class PoseGraphic extends Graphic {
 
     }
 
+    void drawPoint(Canvas canvas, PoseLandmark landmark, Paint paint) {
+        PointF3D point = landmark.getPosition3D();
+        updatePaintColorByZValue(
+                paint, canvas, visualizeZ, rescaleZForVisualization, point.getZ(), zMin, zMax);
+        canvas.drawCircle(translateX(point.getX()), translateY(point.getY()), DOT_RADIUS, paint);
+    }
+
     void drawLine(Canvas canvas, PoseLandmark startLandmark, PoseLandmark endLandmark, Paint paint) {
 
         PointF3D start = startLandmark.getPosition3D();
@@ -272,53 +211,5 @@ public class PoseGraphic extends Graphic {
                 translateY(end.getY()),
                 paint);
     }
-
-
-    //start custom functions
-
-    void SetupKeyFrames() {
-        PullGestureJson();
-        SetupTracker();
-    }
-
-    void PullGestureJson() {
-        String url = "https://api.npoint.io/534c33f088b5a5d13231";
-        RequestQueue rq = Volley.newRequestQueue(getApplicationContext());
-        StringRequest sr = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    gestureJson = new JSONObject(response);
-                    System.out.println("JSON read");
-                    System.out.println(gestureJson);
-                } catch (JSONException e) {
-                    System.out.println(e);
-                }
-            }
-
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                System.out.println(error);
-            }
-        });
-
-        rq.add(sr);
-    }
-
-    void SetupTracker() {
-        //populate tracker class in this method
-    }
-    //tracks indexes from the list of pose landmarks
-    private void Tracking(List<PoseLandmark> poseLandmarks) {
-
-        //if the gesture tracking hasn't finished yet
-        if (!finished) {
-
-
-        }
-    }
-
-
 }
 
