@@ -146,3 +146,4 @@ configurations {
     // com.google.guava:guava and com.google.guava:listenablefuture together.
     all*.exclude group: 'com.google.guava', module: 'listenablefuture'
 }
+apply plugin: 'com.google.gms.google-services'
