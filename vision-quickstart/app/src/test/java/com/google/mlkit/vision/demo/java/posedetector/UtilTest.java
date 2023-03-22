@@ -1,6 +1,6 @@
 package com.google.mlkit.vision.demo.java.posedetector;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 

@@ -16,28 +16,22 @@
 
 package com.google.mlkit.vision.demo.java;
 
-import android.content.Intent;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.util.Log;
 import android.util.Size;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -56,11 +50,7 @@ import com.google.mlkit.vision.demo.R;
 import com.google.mlkit.vision.demo.VisionImageProcessor;
 import com.google.mlkit.vision.demo.java.posedetector.PoseDetectorProcessor;
 import com.google.mlkit.vision.demo.preference.PreferenceUtils;
-import com.google.mlkit.vision.demo.preference.SettingsActivity;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Live preview demo app for ML Kit APIs using CameraX.
@@ -85,7 +75,7 @@ public final class CameraXLivePreviewActivity extends AppCompatActivity
     private boolean needUpdateGraphicOverlayImageSourceInfo;
 
     private String selectedModel = POSE_DETECTION;
-    private int lensFacing = CameraSelector.LENS_FACING_FRONT;
+    public int lensFacing = CameraSelector.LENS_FACING_FRONT;
     private CameraSelector cameraSelector;
 
     @Override

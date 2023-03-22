@@ -1,8 +1,7 @@
 package com.google.mlkit.vision.demo.java.posedetector;
 
-import android.content.Context;
 import android.content.ContentValues;
-//import android.database.Cursor;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -14,11 +13,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.time.LocalDateTime;
-import java.time.Duration;
 
 // An object that encapsulates a series of exercises
 public class Timeline {

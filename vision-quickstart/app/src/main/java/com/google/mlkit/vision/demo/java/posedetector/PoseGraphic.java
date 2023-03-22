@@ -3,8 +3,6 @@ package com.google.mlkit.vision.demo.java.posedetector;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -15,17 +13,7 @@ import com.google.mlkit.vision.demo.GraphicOverlay.Graphic;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.List;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
 public class PoseGraphic extends Graphic {
 

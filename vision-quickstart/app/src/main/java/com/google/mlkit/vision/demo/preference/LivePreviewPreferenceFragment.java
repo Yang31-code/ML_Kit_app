@@ -23,10 +23,13 @@ import android.preference.ListPreference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.widget.Toast;
+
 import androidx.annotation.StringRes;
+
 import com.google.mlkit.vision.demo.CameraSource;
 import com.google.mlkit.vision.demo.CameraSource.SizePair;
 import com.google.mlkit.vision.demo.R;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

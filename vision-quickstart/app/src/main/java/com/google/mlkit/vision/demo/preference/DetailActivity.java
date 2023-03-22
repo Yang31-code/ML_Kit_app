@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.mlkit.vision.demo.R;

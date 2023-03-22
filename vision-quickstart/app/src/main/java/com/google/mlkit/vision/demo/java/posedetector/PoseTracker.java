@@ -1,15 +1,15 @@
 package com.google.mlkit.vision.demo.java.posedetector;
 
-import java.util.List;
-import java.util.Arrays;
-import java.util.ArrayList;
-
 import com.google.mlkit.vision.demo.java.posedetector.pointTypes.Keyframe;
 import com.google.mlkit.vision.pose.PoseLandmark;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class PoseTracker {
 

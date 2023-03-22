@@ -19,6 +19,7 @@ package com.google.mlkit.vision.demo;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+
 import androidx.annotation.Nullable;
 
 /** Graphic instance for rendering inference info (latency, FPS, resolution) in an overlay view. */

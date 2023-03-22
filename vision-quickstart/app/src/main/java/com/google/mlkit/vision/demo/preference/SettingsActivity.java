@@ -18,8 +18,10 @@ package com.google.mlkit.vision.demo.preference;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.mlkit.vision.demo.R;
 
 /**

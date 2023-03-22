@@ -10,11 +10,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.Math;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-
-import java.time.Duration;
 
 public class Util {
     public static Integer screenHeight = null;

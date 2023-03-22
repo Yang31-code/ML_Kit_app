@@ -23,8 +23,10 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
+
 import com.google.android.gms.common.images.Size;
 import com.google.mlkit.vision.demo.preference.PreferenceUtils;
+
 import java.io.IOException;
 
 /** Preview the camera image in the screen. */

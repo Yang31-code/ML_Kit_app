@@ -20,7 +20,9 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+
 import androidx.annotation.RequiresApi;
+
 import com.google.mlkit.vision.demo.R;
 
 /** Configures CameraXSource live preview demo settings. */

@@ -1,12 +1,12 @@
 package com.google.mlkit.vision.demo.preference;
 
+import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-
-import android.os.Bundle;
 
 import com.chaychan.library.BottomBarLayout;
 import com.google.mlkit.vision.demo.R;
