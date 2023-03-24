@@ -1,7 +1,0 @@
-Layout is found in /app/src/main/res/layout/<filename you want to edit>
-
-
-
-As of 2023/02/04
-All analysis happens in app/src/main/java/com.google.mlkit.vision.demo/java/posedector/PoseGraphic.java
-The draw call acts as the tick where processing takes place
