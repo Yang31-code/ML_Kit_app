@@ -16,7 +16,7 @@ jobs:
       - name: Build with Gradle
         run: chmod +x ./gradlew && ./gradlew build
       - name: Run tests and generate coverage report
-        run: chmod +x ./gradlew && ./gradlew test jacocoTestReport
+        run: chmod +x ./gradlew && ./gradlew testDebugUnitTest jacocoTestReport
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v2
         with:
